@@ -60,7 +60,7 @@ class MahoganyHomesHighlightOverlay extends Overlay
 	{
 		final Home home = plugin.getCurrentHome();
 		final Player player = plugin.getClient().getLocalPlayer();
-		if (home == null || player == null)
+		if (plugin.isPluginTimedOut() || home == null || player == null)
 		{
 			return null;
 		}

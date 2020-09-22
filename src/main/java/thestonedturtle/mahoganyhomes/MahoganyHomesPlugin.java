@@ -3,6 +3,8 @@ package thestonedturtle.mahoganyhomes;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +50,7 @@ public class MahoganyHomesPlugin extends Plugin
 	@VisibleForTesting
 	static final Pattern CONTRACT_PATTERN = Pattern.compile("(Please could you g|G)o see (\\w*)[ ,][\\w\\s,-]*[?.] You can get another job once you have furnished \\w* home\\.");
 	private static final String CONTRACT_FINISHED_MESSAGE = "Thank you so much! Would you like a cup of tea before you go?";
+	private static final Duration PLUGIN_TIMEOUT_DURATION = Duration.ofMinutes(5);
 
 	@Getter
 	@Inject
@@ -92,6 +95,10 @@ public class MahoganyHomesPlugin extends Plugin
 	private Home currentHome;
 	private boolean varbChange;
 
+	// Used to auto disable plugin if nothing has changed recently.
+	private Instant lastChanged;
+	private int lastCompletedCount = -1;
+
 	@Override
 	public void startUp()
 	{
@@ -102,6 +109,8 @@ public class MahoganyHomesPlugin extends Plugin
 			loadFromConfig();
 			clientThread.invoke(this::updateVarbMap);
 		}
+		lastChanged = Instant.now();
+		lastCompletedCount = 0;
 	}
 
 	@Override
@@ -116,6 +125,8 @@ public class MahoganyHomesPlugin extends Plugin
 		currentHome = null;
 		mapIcon = null;
 		mapArrow = null;
+		lastChanged = null;
+		lastCompletedCount = -1;
 	}
 
 	@Subscribe
@@ -196,6 +207,12 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			setCurrentHome(null);
 			updateConfig();
+			lastChanged = null;
+		}
+
+		if (e.getEntry().getOption().equals(MahoganyHomesOverlay.TIMEOUT_OPTION))
+		{
+			lastChanged = Instant.now().minus(PLUGIN_TIMEOUT_DURATION);
 		}
 	}
 
@@ -206,14 +223,29 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			varbChange = false;
 			updateVarbMap();
+
+			final int completed = getCompletedCount();
+			if (completed != lastCompletedCount)
+			{
+				lastCompletedCount = completed;
+				lastChanged = Instant.now();
+			}
 		}
 
-		if (currentHome != null && config.displayHintArrows())
+		checkForAssignmentDialog();
+
+		// The plugin automatically disables after 5 minutes of inactivity.
+		if (isPluginTimedOut() || currentHome == null)
 		{
-			refreshHintArrow(client.getLocalPlayer().getWorldLocation());
+			return;
 		}
 
-		// Check for NPC dialog assigning or reminding us of a contract
+		refreshHintArrow(client.getLocalPlayer().getWorldLocation());
+	}
+
+	// Check for NPC dialog assigning or reminding us of a contract
+	private void checkForAssignmentDialog()
+	{
 		final Widget dialog = client.getWidget(WidgetInfo.DIALOG_NPC_TEXT);
 		if (dialog == null)
 		{
@@ -234,10 +266,11 @@ public class MahoganyHomesPlugin extends Plugin
 			final String name = startContractMatcher.group(2);
 			for (final Home h : Home.values())
 			{
-				if (h.getName().equalsIgnoreCase(name) && currentHome != h)
+				if (h.getName().equalsIgnoreCase(name) && (currentHome != h || isPluginTimedOut()))
 				{
 					setCurrentHome(h);
 					updateConfig();
+					break;
 				}
 			}
 		}
@@ -247,9 +280,12 @@ public class MahoganyHomesPlugin extends Plugin
 	{
 		currentHome = h;
 		client.clearHintArrow();
+		lastChanged = Instant.now();
+		lastCompletedCount = 0;
 
 		if (currentHome == null)
 		{
+			lastChanged = null;
 			return;
 		}
 
@@ -438,5 +474,10 @@ public class MahoganyHomesPlugin extends Plugin
 
 		mapArrow = ImageUtil.getResourceStreamFromClass(getClass(), "map-arrow-icon.png");
 		return mapArrow;
+	}
+
+	boolean isPluginTimedOut()
+	{
+		return lastChanged != null && Duration.between(lastChanged, Instant.now()).compareTo(PLUGIN_TIMEOUT_DURATION) >= 0;
 	}
 }
