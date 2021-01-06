@@ -92,8 +92,8 @@ class MahoganyHomesHighlightOverlay extends Overlay
 			}
 			else
 			{
-				final boolean requiresAttention = plugin.doesHotspotRequireAttention(spot.getVarb());
-				if (!requiresAttention)
+				// Do not highlight the hotspot if the config is disabled or it doesn't require any attention
+				if (!config.highlightHotspots() || !plugin.doesHotspotRequireAttention(spot.getVarb()))
 				{
 					continue;
 				}

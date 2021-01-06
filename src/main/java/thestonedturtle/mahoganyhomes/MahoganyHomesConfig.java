@@ -50,7 +50,8 @@ public interface MahoganyHomesConfig extends Config
 	@ConfigItem(
 		keyName = HINT_ARROW_KEY,
 		name = "Display Hint Arrows",
-		description = "Configures whether or not to display the hint arrows"
+		description = "Configures whether or not to display the hint arrows",
+		position = 1
 	)
 	default boolean displayHintArrows()
 	{
@@ -61,7 +62,7 @@ public interface MahoganyHomesConfig extends Config
 		keyName = "highlightStairs",
 		name = "Highlight Stairs",
 		description = "Configures whether or not the stairs will be highlighted",
-		position = 1
+		position = 2
 	)
 	default boolean highlightStairs()
 	{
@@ -72,9 +73,20 @@ public interface MahoganyHomesConfig extends Config
 		keyName = "textOverlay",
 		name = "Display Text Overlay",
 		description = "Configures whether or not the text overlay will be displayed for your current contract",
-		position = 2
+		position = 3
 	)
 	default boolean textOverlay()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "highlightHotspots",
+		name = "Highlight Building Hotspots",
+		description = "Configures whether or not the building hotspots will be highlighted",
+		position = 4
+	)
+	default boolean highlightHotspots()
 	{
 		return true;
 	}
