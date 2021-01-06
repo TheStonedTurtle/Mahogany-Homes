@@ -286,6 +286,7 @@ public class MahoganyHomesPlugin extends Plugin
 		if (currentHome == null)
 		{
 			lastChanged = null;
+			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
 			return;
 		}
 
