@@ -91,13 +91,13 @@ enum Home
 
 	String getRequiredPlanks() {
 		if (this.requiredMaterials.MinPlanks == this.requiredMaterials.MaxPlanks) { return String.format("%s planks", this.requiredMaterials.MinPlanks); }
-		return String.format("%s1-%s2 planks", this.requiredMaterials.MinPlanks, this.requiredMaterials.MaxPlanks);
+		return String.format("%s - %s planks", this.requiredMaterials.MinPlanks, this.requiredMaterials.MaxPlanks);
 	}
 
 	String getRequiredSteelBars() {
 		if (this.requiredMaterials.MinSteelBars + this.requiredMaterials.MaxSteelBars == 0) { return ""; }
 		if (this.requiredMaterials.MinSteelBars == this.requiredMaterials.MaxSteelBars) { return String.format("%s steel bars", this.requiredMaterials.MinSteelBars); }
-		return String.format("%s1-%s2 steel bars", this.requiredMaterials.MinSteelBars, this.requiredMaterials.MaxSteelBars);
+		return String.format("%s - %s steel bars", this.requiredMaterials.MinSteelBars, this.requiredMaterials.MaxSteelBars);
 	}
 
 	private static final ImmutableSet<Integer> LADDERS;
