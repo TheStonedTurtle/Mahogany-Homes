@@ -76,11 +76,14 @@ class MahoganyHomesOverlay extends OverlayPanel
 		addLine(home.getName());
 		addLine(home.getHint());
 		addLine("");
-		String planks = home.getRequiredPlanks();
-		if (planks != "") { addLine(planks); }
-		String bars = home.getRequiredSteelBars();
-		if (bars != "") { addLine(bars); }
-		addLine("");
+
+		if (config.showRequiredMaterials()){
+			String planks = home.getRequiredPlanks();
+			if (planks != "") { addLine(planks); }
+			String bars = home.getRequiredSteelBars();
+			if (bars != "") { addLine(bars); }
+			addLine("");
+		}
 
 		if (plugin.distanceBetween(home.getArea(), player.getWorldLocation()) > 0)
 		{
