@@ -89,14 +89,28 @@ enum Home
 		return WordUtils.capitalize(name().toLowerCase());
 	}
 
-	String getRequiredPlanks() {
-		if (this.requiredMaterials.MinPlanks == this.requiredMaterials.MaxPlanks) { return String.format("%d planks", this.requiredMaterials.MinPlanks); }
+	String getRequiredPlanks()
+	{
+		if (this.requiredMaterials.MinPlanks == this.requiredMaterials.MaxPlanks)
+		{
+			return String.format("%d planks", this.requiredMaterials.MinPlanks);
+		}
+
 		return String.format("%d - %d planks", this.requiredMaterials.MinPlanks, this.requiredMaterials.MaxPlanks);
 	}
 
-	String getRequiredSteelBars() {
-		if (this.requiredMaterials.MinSteelBars + this.requiredMaterials.MaxSteelBars == 0) { return ""; }
-		if (this.requiredMaterials.MinSteelBars == this.requiredMaterials.MaxSteelBars) { return String.format("%d steel bar", this.requiredMaterials.MinSteelBars); }
+	String getRequiredSteelBars()
+	{
+		if (this.requiredMaterials.MinSteelBars + this.requiredMaterials.MaxSteelBars == 0)
+		{
+			return null;
+		}
+
+		if (this.requiredMaterials.MinSteelBars == this.requiredMaterials.MaxSteelBars)
+		{
+			return String.format("%d steel bar", this.requiredMaterials.MinSteelBars);
+		}
+
 		return String.format("%d - %d steel bars", this.requiredMaterials.MinSteelBars, this.requiredMaterials.MaxSteelBars);
 	}
 
