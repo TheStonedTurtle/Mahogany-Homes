@@ -14,12 +14,14 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.api.GameState;
 import net.runelite.api.NPC;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameObjectChanged;
 import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
@@ -49,7 +51,7 @@ public class MahoganyHomesPlugin extends Plugin
 {
 	@VisibleForTesting
 	static final Pattern CONTRACT_PATTERN = Pattern.compile("(Please could you g|G)o see (\\w*)[ ,][\\w\\s,-]*[?.] You can get another job once you have furnished \\w* home\\.");
-	private static final String CONTRACT_FINISHED_MESSAGE = "Thank you so much! Would you like a cup of tea before you go?";
+	private static final Pattern CONTRACT_FINISHED = Pattern.compile("You have completed \\d* contracts with a total of \\d* points?\\.");
 	private static final Duration PLUGIN_TIMEOUT_DURATION = Duration.ofMinutes(5);
 
 	@Getter
@@ -243,6 +245,21 @@ public class MahoganyHomesPlugin extends Plugin
 		refreshHintArrow(client.getLocalPlayer().getWorldLocation());
 	}
 
+	@Subscribe
+	public void onChatMessage(ChatMessage e)
+	{
+		if (!e.getType().equals(ChatMessageType.GAMEMESSAGE))
+		{
+			return;
+		}
+
+		if (CONTRACT_FINISHED.matcher(Text.removeTags(e.getMessage())).matches())
+		{
+			setCurrentHome(null);
+			updateConfig();
+		}
+	}
+
 	// Check for NPC dialog assigning or reminding us of a contract
 	private void checkForAssignmentDialog()
 	{
@@ -253,13 +270,6 @@ public class MahoganyHomesPlugin extends Plugin
 		}
 
 		final String npcText = Text.sanitizeMultilineText(dialog.getText());
-		if (npcText.equals(CONTRACT_FINISHED_MESSAGE))
-		{
-			setCurrentHome(null);
-			updateConfig();
-			return;
-		}
-
 		final Matcher startContractMatcher = CONTRACT_PATTERN.matcher(npcText);
 		if (startContractMatcher.matches())
 		{
