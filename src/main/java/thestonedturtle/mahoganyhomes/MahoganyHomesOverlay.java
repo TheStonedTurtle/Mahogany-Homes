@@ -77,6 +77,19 @@ class MahoganyHomesOverlay extends OverlayPanel
 		addLine(home.getHint());
 		addLine("");
 
+		if (config.showRequiredMaterials())
+		{
+			addLine(home.getRequiredPlanks());
+
+			String bars = home.getRequiredSteelBars();
+			if (bars != null)
+			{
+				addLine(bars);
+			}
+
+			addLine("");
+		}
+
 		if (plugin.distanceBetween(home.getArea(), player.getWorldLocation()) > 0)
 		{
 			addLine("Click the house icon on your world map to see where to go");
