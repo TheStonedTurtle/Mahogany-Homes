@@ -96,6 +96,7 @@ public class MahoganyHomesPlugin extends Plugin
 	@Getter
 	private Home currentHome;
 	private boolean varbChange;
+	private boolean wasTimedOut;
 
 	// Used to auto disable plugin if nothing has changed recently.
 	private Instant lastChanged;
@@ -215,12 +216,23 @@ public class MahoganyHomesPlugin extends Plugin
 		if (e.getEntry().getOption().equals(MahoganyHomesOverlay.TIMEOUT_OPTION))
 		{
 			lastChanged = Instant.now().minus(PLUGIN_TIMEOUT_DURATION);
+			// Remove worldPoint and clear hint arrow when plugin times out
+			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
+			client.clearHintArrow();
+			wasTimedOut = true;
 		}
 	}
 
 	@Subscribe
 	public void onGameTick(GameTick t)
 	{
+		checkForAssignmentDialog();
+
+		if (currentHome == null)
+		{
+			return;
+		}
+
 		if (varbChange)
 		{
 			varbChange = false;
@@ -229,16 +241,27 @@ public class MahoganyHomesPlugin extends Plugin
 			final int completed = getCompletedCount();
 			if (completed != lastCompletedCount)
 			{
+				if (wasTimedOut)
+				{
+					// Refreshes hint arrow and world map icon if necessary
+					setCurrentHome(currentHome);
+				}
+
 				lastCompletedCount = completed;
 				lastChanged = Instant.now();
 			}
 		}
 
-		checkForAssignmentDialog();
-
 		// The plugin automatically disables after 5 minutes of inactivity.
-		if (isPluginTimedOut() || currentHome == null)
+		if (isPluginTimedOut())
 		{
+			if (!wasTimedOut)
+			{
+				// Remove worldPoint and clear hint arrow when plugin times out
+				worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
+				client.clearHintArrow();
+			}
+			wasTimedOut = true;
 			return;
 		}
 
