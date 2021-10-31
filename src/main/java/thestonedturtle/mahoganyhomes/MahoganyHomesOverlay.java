@@ -41,6 +41,7 @@ import net.runelite.client.ui.overlay.components.LineComponent;
 
 class MahoganyHomesOverlay extends OverlayPanel
 {
+	static final String RESET_SESSION_OPTION = "Reset";
 	static final String CLEAR_OPTION = "Clear";
 	static final String TIMEOUT_OPTION = "Timeout";
 
@@ -59,6 +60,7 @@ class MahoganyHomesOverlay extends OverlayPanel
 
 		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Mahogany Homes Overlay"));
 		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY, TIMEOUT_OPTION, "Mahogany Homes Plugin"));
+		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY, RESET_SESSION_OPTION, "Session Data"));
 		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY, CLEAR_OPTION, "Contract"));
 	}
 
@@ -68,52 +70,65 @@ class MahoganyHomesOverlay extends OverlayPanel
 	{
 		final Home home = plugin.getCurrentHome();
 		final Player player = plugin.getClient().getLocalPlayer();
-		if (plugin.isPluginTimedOut() || home == null || !config.textOverlay() || player == null)
+		if (plugin.isPluginTimedOut() || !config.textOverlay() || player == null)
 		{
 			return null;
 		}
 
-		addLine(home.getName());
-		addLine(home.getHint());
-
-		if (config.showRequiredMaterials())
+		if (home != null)
 		{
-			addLine("");
-			addLine(home.getRequiredPlanks());
+			addLine(home.getName());
+			addLine(home.getHint());
 
-			String bars = home.getRequiredSteelBars();
-			if (bars != null)
-			{
-				addLine(bars);
-			}
-		}
-
-		if (plugin.distanceBetween(home.getArea(), player.getWorldLocation()) > 0)
-		{
-			if (config.worldMapIcon())
+			if (config.showRequiredMaterials())
 			{
 				addLine("");
-				addLine("Click the house icon on your world map to see where to go");
+				addLine(home.getRequiredPlanks());
+
+				String bars = home.getRequiredSteelBars();
+				if (bars != null)
+				{
+					addLine(bars);
+				}
 			}
-		}
-		else
-		{
-			addLine("");
-			final int count = plugin.getCompletedCount();
-			if (count > 0)
+
+			if (plugin.distanceBetween(home.getArea(), player.getWorldLocation()) > 0)
 			{
-				panelComponent.getChildren().add(LineComponent.builder()
-					.left(count + " task(s) remaining")
-					.leftColor(Color.RED)
-					.build());
+				if (config.worldMapIcon())
+				{
+					addLine("");
+					addLine("Click the house icon on your world map to see where to go");
+				}
 			}
 			else
 			{
-				panelComponent.getChildren().add(LineComponent.builder()
-					.left("All tasks completed, speak to " + home.getName())
-					.leftColor(Color.GREEN)
-					.build());
+				addLine("");
+				final int count = plugin.getCompletedCount();
+				if (count > 0)
+				{
+					panelComponent.getChildren().add(LineComponent.builder()
+						.left(count + " task(s) remaining")
+						.leftColor(Color.RED)
+						.build());
+				}
+				else
+				{
+					panelComponent.getChildren().add(LineComponent.builder()
+						.left("All tasks completed, speak to " + home.getName())
+						.leftColor(Color.GREEN)
+						.build());
+				}
 			}
+		}
+
+		if (config.showSessionStats() && plugin.getSessionContracts() > 0)
+		{
+			if (home != null)
+			{
+				addLine("");
+			}
+			addLine("Contracts Done: " + plugin.getSessionContracts());
+			addLine("Points Earned: " + plugin.getSessionPoints());
 		}
 
 		return super.render(graphics);

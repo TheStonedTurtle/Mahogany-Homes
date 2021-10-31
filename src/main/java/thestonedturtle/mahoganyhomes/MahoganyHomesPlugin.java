@@ -102,6 +102,11 @@ public class MahoganyHomesPlugin extends Plugin
 	private Instant lastChanged;
 	private int lastCompletedCount = -1;
 
+	@Getter
+	private int sessionContracts = 0;
+	@Getter
+	private int sessionPoints = 0;
+
 	@Override
 	public void startUp()
 	{
@@ -221,6 +226,12 @@ public class MahoganyHomesPlugin extends Plugin
 			client.clearHintArrow();
 			wasTimedOut = true;
 		}
+
+		if (e.getEntry().getOption().equals(MahoganyHomesOverlay.RESET_SESSION_OPTION))
+		{
+			sessionContracts = 0;
+			sessionPoints = 0;
+		}
 	}
 
 	@Subscribe
@@ -280,6 +291,8 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			setCurrentHome(null);
 			updateConfig();
+			sessionContracts++;
+			sessionPoints += getPointsForCompletingTask();
 		}
 	}
 
@@ -513,5 +526,25 @@ public class MahoganyHomesPlugin extends Plugin
 	boolean isPluginTimedOut()
 	{
 		return lastChanged != null && Duration.between(lastChanged, Instant.now()).compareTo(PLUGIN_TIMEOUT_DURATION) >= 0;
+	}
+
+	int getPointsForCompletingTask()
+	{
+		int tier = 0;
+		// Values 5-8 are the tier of contract completed
+		for (int val : varbMap.values())
+		{
+			tier = Math.max(tier, val);
+		}
+
+		// Normalizes tier from 5-8 to 1-4
+		tier -= 4;
+		if (tier < 0)
+		{
+			return 0;
+		}
+
+		// Contracts reward 2-5 points depending on tier
+		return tier + 1;
 	}
 }

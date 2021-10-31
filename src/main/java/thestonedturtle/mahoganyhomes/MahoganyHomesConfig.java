@@ -101,4 +101,15 @@ public interface MahoganyHomesConfig extends Config
 	{
 		return true;
 	}
+
+	@ConfigItem(
+		keyName = "showSessionStats",
+		name = "Display Session Stats",
+		description = "Configures whether or not the amount of contracts and the points received from those contracts is displayed inside the overlay",
+		position = 6
+	)
+	default boolean showSessionStats()
+	{
+		return true;
+	}
 }
