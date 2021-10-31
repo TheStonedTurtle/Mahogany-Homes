@@ -92,10 +92,13 @@ public interface MahoganyHomesConfig extends Config
 	}
 
 	@ConfigItem(
-			keyName = "showRequiredMaterials",
-			name = "Display Required Materials",
-			description = "Configures whether or not to display the required materials for your current task",
-			position = 4
+		keyName = "showRequiredMaterials",
+		name = "Display Required Materials",
+		description = "Configures whether or not to display the required materials for your current task",
+		position = 5
 	)
-	default boolean showRequiredMaterials() { return true; }
+	default boolean showRequiredMaterials()
+	{
+		return true;
+	}
 }
