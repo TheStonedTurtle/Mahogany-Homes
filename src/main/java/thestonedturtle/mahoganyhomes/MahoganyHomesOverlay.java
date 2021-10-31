@@ -75,10 +75,10 @@ class MahoganyHomesOverlay extends OverlayPanel
 
 		addLine(home.getName());
 		addLine(home.getHint());
-		addLine("");
 
 		if (config.showRequiredMaterials())
 		{
+			addLine("");
 			addLine(home.getRequiredPlanks());
 
 			String bars = home.getRequiredSteelBars();
@@ -86,16 +86,19 @@ class MahoganyHomesOverlay extends OverlayPanel
 			{
 				addLine(bars);
 			}
-
-			addLine("");
 		}
 
 		if (plugin.distanceBetween(home.getArea(), player.getWorldLocation()) > 0)
 		{
-			addLine("Click the house icon on your world map to see where to go");
+			if (config.worldMapIcon())
+			{
+				addLine("");
+				addLine("Click the house icon on your world map to see where to go");
+			}
 		}
 		else
 		{
+			addLine("");
 			final int count = plugin.getCompletedCount();
 			if (count > 0)
 			{
