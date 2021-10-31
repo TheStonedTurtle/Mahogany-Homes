@@ -77,11 +77,16 @@ class MahoganyHomesOverlay extends OverlayPanel
 		addLine(home.getHint());
 		addLine("");
 
-		if (config.showRequiredMaterials()){
-			String planks = home.getRequiredPlanks();
-			if (planks != "") { addLine(planks); }
+		if (config.showRequiredMaterials())
+		{
+			addLine(home.getRequiredPlanks());
+
 			String bars = home.getRequiredSteelBars();
-			if (bars != "") { addLine(bars); }
+			if (bars != null)
+			{
+				addLine(bars);
+			}
+
 			addLine("");
 		}
 
