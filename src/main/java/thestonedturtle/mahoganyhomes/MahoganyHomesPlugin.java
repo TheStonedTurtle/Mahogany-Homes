@@ -51,7 +51,7 @@ public class MahoganyHomesPlugin extends Plugin
 {
 	@VisibleForTesting
 	static final Pattern CONTRACT_PATTERN = Pattern.compile("(Please could you g|G)o see (\\w*)[ ,][\\w\\s,-]*[?.] You can get another job once you have furnished \\w* home\\.");
-	private static final Pattern CONTRACT_FINISHED = Pattern.compile("You have completed \\d* contracts with a total of \\d* points?\\.");
+	private static final Pattern CONTRACT_FINISHED = Pattern.compile("You have completed [\\d,]* contracts with a total of [\\d,]* points?\\.");
 	private static final Duration PLUGIN_TIMEOUT_DURATION = Duration.ofMinutes(5);
 
 	@Getter
