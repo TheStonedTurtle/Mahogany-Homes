@@ -46,6 +46,7 @@ class MahoganyHomesWorldPoint extends WorldMapPoint
 		this.setJumpOnClick(true);
 		this.setImage(image);
 		this.setImagePoint(point);
+		this.setName("Mahogany Homes Contract");
 	}
 
 	@Override
