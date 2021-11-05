@@ -41,7 +41,7 @@ enum Home
 	NOELLA(new WorldArea(2652, 3317, 15, 8, 0), "North of East Ardougne market",
 		NpcID.NOELLA, new WorldPoint(2659, 3322, 0), new RequiredMaterials(11, 15, 0, 0), 17026, 16685, 15645, 15648),
 	ROSS(new WorldArea(2609, 3313, 11, 9, 0), "North of the church in East Ardougne",
-		NpcID.ROSS, new WorldPoint(2613, 3316, 0), new RequiredMaterials(8, 11, 1, 1), 16683, 16679),
+		NpcID.ROSS, new WorldPoint(2613, 3316, 0), new RequiredMaterials(8, 11, 0, 1), 16683, 16679),
 
 	// Falador
 	LARRY(new WorldArea(3033, 3360, 10, 9, 0), "North of the fountain in Falador",
