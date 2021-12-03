@@ -1,5 +1,6 @@
 package thestonedturtle.mahoganyhomes;
 
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
@@ -45,7 +46,7 @@ import net.runelite.client.util.Text;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Mahogany Homes"
+		name = "Mahogany Homes"
 )
 public class MahoganyHomesPlugin extends Plugin
 {
@@ -75,6 +76,9 @@ public class MahoganyHomesPlugin extends Plugin
 
 	@Inject
 	private MahoganyHomesHighlightOverlay highlightOverlay;
+
+	@Inject
+	private MahoganyHomesInventoryOverlay inventoryOverlay;
 
 	@Inject
 	private WorldMapPointManager worldMapPointManager;
@@ -112,6 +116,7 @@ public class MahoganyHomesPlugin extends Plugin
 	{
 		overlayManager.add(textOverlay);
 		overlayManager.add(highlightOverlay);
+		overlayManager.add(inventoryOverlay);
 		if (client.getGameState() == GameState.LOGGED_IN)
 		{
 			loadFromConfig();
@@ -126,6 +131,7 @@ public class MahoganyHomesPlugin extends Plugin
 	{
 		overlayManager.remove(textOverlay);
 		overlayManager.remove(highlightOverlay);
+		overlayManager.remove(inventoryOverlay);
 		worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
 		client.clearHintArrow();
 		varbMap.clear();
@@ -161,6 +167,8 @@ public class MahoganyHomesPlugin extends Plugin
 				refreshHintArrow(client.getLocalPlayer().getWorldLocation());
 			}
 		}
+
+		inventoryOverlay.invalidateCache();
 	}
 
 	@Subscribe
@@ -507,7 +515,7 @@ public class MahoganyHomesPlugin extends Plugin
 			return mapIcon;
 		}
 
-		mapIcon = ImageUtil.getResourceStreamFromClass(getClass(), "map-icon.png");
+		mapIcon = ImageUtil.loadImageResource(getClass(), "map-icon.png");
 		return mapIcon;
 	}
 
@@ -518,7 +526,7 @@ public class MahoganyHomesPlugin extends Plugin
 			return mapArrow;
 		}
 
-		mapArrow = ImageUtil.getResourceStreamFromClass(getClass(), "map-arrow-icon.png");
+		mapArrow = ImageUtil.loadImageResource(getClass(), "map-arrow-icon.png");
 		return mapArrow;
 	}
 

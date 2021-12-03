@@ -27,6 +27,7 @@ package thestonedturtle.mahoganyhomes;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.Range;
 
 @ConfigGroup(MahoganyHomesConfig.GROUP_NAME)
 public interface MahoganyHomesConfig extends Config
@@ -112,4 +113,22 @@ public interface MahoganyHomesConfig extends Config
 	{
 		return true;
 	}
+
+	@ConfigItem(
+			keyName = "hightlightTeleportTabs",
+			name = "Highlight Teleport Tabs",
+			description = "Configures whether or not to highlight the appropriate teleport tabe for the current contract",
+			position = 7
+	)
+	default boolean highlightTeleTabs() { return true; }
+
+	@Range(
+			max = 100
+	)
+	@ConfigItem(
+			keyName = "inventoryHighlightAlpha",
+			name = "Inventory Highlight Opacity",
+			description = "Configures the opacity value for the inventory highlight options",
+			position = 8
+	) default int inventoryHighlightAlpha() { return 50; }
 }
