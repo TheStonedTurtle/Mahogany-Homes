@@ -368,11 +368,11 @@ public class MahoganyHomesPlugin extends Plugin
 		lastChanged = Instant.now();
 		lastCompletedCount = 0;
 		varbMap.clear();
-		contractTier = 0;
 
 		if (currentHome == null)
 		{
 			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
+			contractTier = 0;
 			return;
 		}
 
