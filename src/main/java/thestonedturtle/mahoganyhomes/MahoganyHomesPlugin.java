@@ -365,7 +365,7 @@ public class MahoganyHomesPlugin extends Plugin
 
 	private void loadFromConfig()
 	{
-		final String group = MahoganyHomesConfig.GROUP_NAME + "." + client.getUsername();
+		final String group = MahoganyHomesConfig.GROUP_NAME + "." + client.getAccountHash();
 		final String name = configManager.getConfiguration(group, MahoganyHomesConfig.HOME_KEY);
 		if (name == null)
 		{
@@ -387,7 +387,7 @@ public class MahoganyHomesPlugin extends Plugin
 
 	private void updateConfig()
 	{
-		final String group = MahoganyHomesConfig.GROUP_NAME + "." + client.getUsername();
+		final String group = MahoganyHomesConfig.GROUP_NAME + "." + client.getAccountHash();
 		if (currentHome == null)
 		{
 			configManager.unsetConfiguration(group, MahoganyHomesConfig.HOME_KEY);
