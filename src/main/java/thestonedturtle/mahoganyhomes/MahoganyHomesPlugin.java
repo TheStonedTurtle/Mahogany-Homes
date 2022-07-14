@@ -51,6 +51,7 @@ public class MahoganyHomesPlugin extends Plugin
 	@VisibleForTesting
 	static final Pattern CONTRACT_PATTERN = Pattern.compile("(Please could you g|G)o see (\\w*)[ ,][\\w\\s,-]*[?.] You can get another job once you have furnished \\w* home\\.");
 	private static final Pattern CONTRACT_FINISHED = Pattern.compile("You have completed [\\d,]* contracts with a total of [\\d,]* points?\\.");
+	private static final Pattern REQUEST_CONTACT_TIER = Pattern.compile("Could I have an? (\\w*) contract please\\?");
 	private static final Duration PLUGIN_TIMEOUT_DURATION = Duration.ofMinutes(5);
 
 	@Getter
@@ -96,6 +97,8 @@ public class MahoganyHomesPlugin extends Plugin
 	private Home currentHome;
 	private boolean varbChange;
 	private boolean wasTimedOut;
+	@Getter
+	private int contractTier = 0;
 
 	// Used to auto disable plugin if nothing has changed recently.
 	private Instant lastChanged;
@@ -134,6 +137,7 @@ public class MahoganyHomesPlugin extends Plugin
 		mapArrow = null;
 		lastChanged = null;
 		lastCompletedCount = -1;
+		contractTier = 0;
 	}
 
 	@Subscribe
@@ -230,6 +234,11 @@ public class MahoganyHomesPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick t)
 	{
+		if (contractTier == 0 || currentHome == null)
+		{
+			checkForContractTierDialog();
+		}
+
 		checkForAssignmentDialog();
 
 		if (currentHome == null)
@@ -241,6 +250,12 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			varbChange = false;
 			updateVarbMap();
+
+			// If we couldn't find their contract tier recalculate it when they get close
+			if (contractTier == 0)
+			{
+				calculateContractTier();
+			}
 
 			final int completed = getCompletedCount();
 			if (completed != lastCompletedCount)
@@ -282,10 +297,41 @@ public class MahoganyHomesPlugin extends Plugin
 
 		if (CONTRACT_FINISHED.matcher(Text.removeTags(e.getMessage())).matches())
 		{
-			setCurrentHome(null);
-			updateConfig();
 			sessionContracts++;
 			sessionPoints += getPointsForCompletingTask();
+			setCurrentHome(null);
+			updateConfig();
+		}
+	}
+
+	private void checkForContractTierDialog()
+	{
+		final Widget dialog = client.getWidget(WidgetInfo.DIALOG_PLAYER_TEXT);
+		if (dialog == null)
+		{
+			return;
+		}
+
+		final String text = Text.sanitizeMultilineText(dialog.getText());
+		final Matcher matcher = REQUEST_CONTACT_TIER.matcher(text);
+		if (matcher.matches())
+		{
+			final String type = matcher.group(1).toLowerCase();
+			switch (type)
+			{
+				case "beginner":
+					contractTier = 1;
+					break;
+				case "novice":
+					contractTier = 2;
+					break;
+				case "adept":
+					contractTier = 3;
+					break;
+				case "expert":
+					contractTier = 4;
+					break;
+			}
 		}
 	}
 
@@ -321,10 +367,12 @@ public class MahoganyHomesPlugin extends Plugin
 		client.clearHintArrow();
 		lastChanged = Instant.now();
 		lastCompletedCount = 0;
+		varbMap.clear();
 
 		if (currentHome == null)
 		{
 			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
+			contractTier = 0;
 			return;
 		}
 
@@ -383,6 +431,29 @@ public class MahoganyHomesPlugin extends Plugin
 			currentHome = null;
 			configManager.setConfiguration(group, MahoganyHomesConfig.HOME_KEY, null);
 		}
+
+		// Get contract tier from config if home was loaded successfully
+		if (currentHome == null)
+		{
+			return;
+		}
+
+		final String tier = configManager.getConfiguration(group, MahoganyHomesConfig.TIER_KEY);
+		if (tier == null)
+		{
+			return;
+		}
+
+		try
+		{
+			contractTier = Integer.parseInt(tier);
+		}
+		catch (IllegalArgumentException e)
+		{
+			log.warn("Stored unrecognized contract tier: {}", tier);
+			contractTier = 0;
+			configManager.unsetConfiguration(group, MahoganyHomesConfig.TIER_KEY);
+		}
 	}
 
 	private void updateConfig()
@@ -391,10 +462,12 @@ public class MahoganyHomesPlugin extends Plugin
 		if (currentHome == null)
 		{
 			configManager.unsetConfiguration(group, MahoganyHomesConfig.HOME_KEY);
+			configManager.unsetConfiguration(group, MahoganyHomesConfig.TIER_KEY);
 		}
 		else
 		{
 			configManager.setConfiguration(group, MahoganyHomesConfig.HOME_KEY, currentHome.getName());
+			configManager.setConfiguration(group, MahoganyHomesConfig.TIER_KEY, contractTier);
 		}
 	}
 
@@ -522,6 +595,12 @@ public class MahoganyHomesPlugin extends Plugin
 
 	int getPointsForCompletingTask()
 	{
+		// Contracts reward 2-5 points depending on tier
+		return getContractTier() + 1;
+	}
+
+	private void calculateContractTier()
+	{
 		int tier = 0;
 		// Values 5-8 are the tier of contract completed
 		for (int val : varbMap.values())
@@ -531,12 +610,6 @@ public class MahoganyHomesPlugin extends Plugin
 
 		// Normalizes tier from 5-8 to 1-4
 		tier -= 4;
-		if (tier < 0)
-		{
-			return 0;
-		}
-
-		// Contracts reward 2-5 points depending on tier
-		return tier + 1;
+		contractTier = Math.max(tier, 0);
 	}
 }
