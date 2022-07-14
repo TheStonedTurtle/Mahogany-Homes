@@ -367,6 +367,7 @@ public class MahoganyHomesPlugin extends Plugin
 		client.clearHintArrow();
 		lastChanged = Instant.now();
 		lastCompletedCount = 0;
+		varbMap.clear();
 		contractTier = 0;
 
 		if (currentHome == null)
@@ -430,6 +431,29 @@ public class MahoganyHomesPlugin extends Plugin
 			currentHome = null;
 			configManager.setConfiguration(group, MahoganyHomesConfig.HOME_KEY, null);
 		}
+
+		// Get contract tier from config if home was loaded successfully
+		if (currentHome == null)
+		{
+			return;
+		}
+
+		final String tier = configManager.getConfiguration(group, MahoganyHomesConfig.TIER_KEY);
+		if (tier == null)
+		{
+			return;
+		}
+
+		try
+		{
+			contractTier = Integer.parseInt(tier);
+		}
+		catch (IllegalArgumentException e)
+		{
+			log.warn("Stored unrecognized contract tier: {}", tier);
+			contractTier = 0;
+			configManager.unsetConfiguration(group, MahoganyHomesConfig.TIER_KEY);
+		}
 	}
 
 	private void updateConfig()
@@ -438,10 +462,12 @@ public class MahoganyHomesPlugin extends Plugin
 		if (currentHome == null)
 		{
 			configManager.unsetConfiguration(group, MahoganyHomesConfig.HOME_KEY);
+			configManager.unsetConfiguration(group, MahoganyHomesConfig.TIER_KEY);
 		}
 		else
 		{
 			configManager.setConfiguration(group, MahoganyHomesConfig.HOME_KEY, currentHome.getName());
+			configManager.setConfiguration(group, MahoganyHomesConfig.TIER_KEY, contractTier);
 		}
 	}
 

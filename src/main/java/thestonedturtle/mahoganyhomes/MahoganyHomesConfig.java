@@ -33,6 +33,7 @@ public interface MahoganyHomesConfig extends Config
 {
 	String GROUP_NAME = "MahoganyHomes";
 	String HOME_KEY = "currentHome";
+	String TIER_KEY = "currentTier";
 	String WORLD_MAP_KEY = "worldMapIcon";
 	String HINT_ARROW_KEY = "displayHintArrows";
 
