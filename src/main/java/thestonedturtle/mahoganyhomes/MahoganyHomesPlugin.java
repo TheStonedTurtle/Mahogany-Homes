@@ -297,10 +297,10 @@ public class MahoganyHomesPlugin extends Plugin
 
 		if (CONTRACT_FINISHED.matcher(Text.removeTags(e.getMessage())).matches())
 		{
-			setCurrentHome(null);
-			updateConfig();
 			sessionContracts++;
 			sessionPoints += getPointsForCompletingTask();
+			setCurrentHome(null);
+			updateConfig();
 		}
 	}
 
