@@ -22,7 +22,6 @@ import net.runelite.api.NPC;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.ChatMessage;
-import net.runelite.api.events.GameObjectChanged;
 import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameStateChanged;
@@ -189,12 +188,6 @@ public class MahoganyHomesPlugin extends Plugin
 	public void onGameObjectSpawned(GameObjectSpawned event)
 	{
 		processGameObjects(event.getGameObject(), null);
-	}
-
-	@Subscribe
-	public void onGameObjectChanged(GameObjectChanged event)
-	{
-		processGameObjects(event.getGameObject(), event.getPrevious());
 	}
 
 	@Subscribe
