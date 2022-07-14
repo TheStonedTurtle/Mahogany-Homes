@@ -51,6 +51,7 @@ public class MahoganyHomesPlugin extends Plugin
 	@VisibleForTesting
 	static final Pattern CONTRACT_PATTERN = Pattern.compile("(Please could you g|G)o see (\\w*)[ ,][\\w\\s,-]*[?.] You can get another job once you have furnished \\w* home\\.");
 	private static final Pattern CONTRACT_FINISHED = Pattern.compile("You have completed [\\d,]* contracts with a total of [\\d,]* points?\\.");
+	private static final Pattern REQUEST_CONTACT_TIER = Pattern.compile("Could I have an? (\\w*) contract please\\?");
 	private static final Duration PLUGIN_TIMEOUT_DURATION = Duration.ofMinutes(5);
 
 	@Getter
@@ -233,6 +234,11 @@ public class MahoganyHomesPlugin extends Plugin
 	@Subscribe
 	public void onGameTick(GameTick t)
 	{
+		if (contractTier == 0 || currentHome == null)
+		{
+			checkForContractTierDialog();
+		}
+
 		checkForAssignmentDialog();
 
 		if (currentHome == null)
@@ -244,6 +250,12 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			varbChange = false;
 			updateVarbMap();
+
+			// If we couldn't find their contract tier recalculate it when they get close
+			if (contractTier == 0)
+			{
+				calculateContractTier();
+			}
 
 			final int completed = getCompletedCount();
 			if (completed != lastCompletedCount)
@@ -292,6 +304,37 @@ public class MahoganyHomesPlugin extends Plugin
 		}
 	}
 
+	private void checkForContractTierDialog()
+	{
+		final Widget dialog = client.getWidget(WidgetInfo.DIALOG_PLAYER_TEXT);
+		if (dialog == null)
+		{
+			return;
+		}
+
+		final String text = Text.sanitizeMultilineText(dialog.getText());
+		final Matcher matcher = REQUEST_CONTACT_TIER.matcher(text);
+		if (matcher.matches())
+		{
+			final String type = matcher.group(1).toLowerCase();
+			switch (type)
+			{
+				case "beginner":
+					contractTier = 1;
+					break;
+				case "novice":
+					contractTier = 2;
+					break;
+				case "adept":
+					contractTier = 3;
+					break;
+				case "expert":
+					contractTier = 4;
+					break;
+			}
+		}
+	}
+
 	// Check for NPC dialog assigning or reminding us of a contract
 	private void checkForAssignmentDialog()
 	{
@@ -330,10 +373,6 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
 			return;
-		}
-		else
-		{
-			contractTier = calculateContractTier();
 		}
 
 		if (config.worldMapIcon())
@@ -534,7 +573,7 @@ public class MahoganyHomesPlugin extends Plugin
 		return getContractTier() + 1;
 	}
 
-	private int calculateContractTier()
+	private void calculateContractTier()
 	{
 		int tier = 0;
 		// Values 5-8 are the tier of contract completed
@@ -545,6 +584,6 @@ public class MahoganyHomesPlugin extends Plugin
 
 		// Normalizes tier from 5-8 to 1-4
 		tier -= 4;
-		return Math.max(tier, 0);
+		contractTier = Math.max(tier, 0);
 	}
 }
