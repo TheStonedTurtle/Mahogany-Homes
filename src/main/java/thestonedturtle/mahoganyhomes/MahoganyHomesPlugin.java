@@ -96,6 +96,8 @@ public class MahoganyHomesPlugin extends Plugin
 	private Home currentHome;
 	private boolean varbChange;
 	private boolean wasTimedOut;
+	@Getter
+	private int contractTier = 0;
 
 	// Used to auto disable plugin if nothing has changed recently.
 	private Instant lastChanged;
@@ -134,6 +136,7 @@ public class MahoganyHomesPlugin extends Plugin
 		mapArrow = null;
 		lastChanged = null;
 		lastCompletedCount = -1;
+		contractTier = 0;
 	}
 
 	@Subscribe
@@ -321,11 +324,16 @@ public class MahoganyHomesPlugin extends Plugin
 		client.clearHintArrow();
 		lastChanged = Instant.now();
 		lastCompletedCount = 0;
+		contractTier = 0;
 
 		if (currentHome == null)
 		{
 			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
 			return;
+		}
+		else
+		{
+			contractTier = calculateContractTier();
 		}
 
 		if (config.worldMapIcon())
@@ -522,6 +530,12 @@ public class MahoganyHomesPlugin extends Plugin
 
 	int getPointsForCompletingTask()
 	{
+		// Contracts reward 2-5 points depending on tier
+		return getContractTier() + 1;
+	}
+
+	private int calculateContractTier()
+	{
 		int tier = 0;
 		// Values 5-8 are the tier of contract completed
 		for (int val : varbMap.values())
@@ -531,12 +545,6 @@ public class MahoganyHomesPlugin extends Plugin
 
 		// Normalizes tier from 5-8 to 1-4
 		tier -= 4;
-		if (tier < 0)
-		{
-			return 0;
-		}
-
-		// Contracts reward 2-5 points depending on tier
-		return tier + 1;
+		return Math.max(tier, 0);
 	}
 }
