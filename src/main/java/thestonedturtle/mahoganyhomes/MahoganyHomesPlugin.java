@@ -264,6 +264,8 @@ public class MahoganyHomesPlugin extends Plugin
 				{
 					// Refreshes hint arrow and world map icon if necessary
 					setCurrentHome(currentHome);
+					updateVarbMap();
+					wasTimedOut = false;
 				}
 
 				lastCompletedCount = completed;
