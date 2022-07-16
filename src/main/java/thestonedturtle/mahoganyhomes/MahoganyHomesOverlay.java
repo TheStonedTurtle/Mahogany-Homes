@@ -80,7 +80,7 @@ class MahoganyHomesOverlay extends OverlayPanel
 			addLine(home.getName());
 			addLine(home.getHint());
 
-			if (config.showRequiredMaterials())
+			if (config.showRequiredMaterials() && plugin.getContractTier() > 0)
 			{
 				addLine("");
 				addLine(home.getRequiredPlanks(plugin.getContractTier()));
