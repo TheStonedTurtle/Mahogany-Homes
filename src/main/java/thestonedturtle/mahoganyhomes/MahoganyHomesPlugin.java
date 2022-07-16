@@ -138,6 +138,7 @@ public class MahoganyHomesPlugin extends Plugin
 		lastChanged = null;
 		lastCompletedCount = -1;
 		contractTier = 0;
+		wasTimedOut = false;
 	}
 
 	@Subscribe
