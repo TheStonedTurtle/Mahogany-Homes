@@ -351,6 +351,18 @@ public class MahoganyHomesPlugin extends Plugin
 		if (startContractMatcher.matches())
 		{
 			final String name = startContractMatcher.group(2);
+
+			// They may have asked for a contract but already had one, check the configs
+			if (contractTier == 0)
+			{
+				loadFromConfig();
+				// If the config matches the assigned value then do nothing
+				if (currentHome != null && currentHome.getName().equalsIgnoreCase(name))
+				{
+					return;
+				}
+			}
+
 			for (final Home h : Home.values())
 			{
 				if (h.getName().equalsIgnoreCase(name) && (currentHome != h || isPluginTimedOut()))
