@@ -27,6 +27,7 @@ package thestonedturtle.mahoganyhomes;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.Range;
 
 @ConfigGroup(MahoganyHomesConfig.GROUP_NAME)
 public interface MahoganyHomesConfig extends Config
@@ -36,6 +37,7 @@ public interface MahoganyHomesConfig extends Config
 	String TIER_KEY = "currentTier";
 	String WORLD_MAP_KEY = "worldMapIcon";
 	String HINT_ARROW_KEY = "displayHintArrows";
+	String SESSION_TIMEOUT_KEY = "sessionTimeout";
 
 	@ConfigItem(
 		keyName = WORLD_MAP_KEY,
@@ -113,4 +115,22 @@ public interface MahoganyHomesConfig extends Config
 	{
 		return true;
 	}
+
+	@Range(
+		min = 1,
+		max = 60
+	)
+	@ConfigItem(
+		keyName = SESSION_TIMEOUT_KEY,
+		name = "Session Timeout",
+		description = "Configures how many minutes must pass before the session timeouts after not having any activity.<br/>" +
+			"Value must be between 1 and 60 minute(s)",
+		position = 7
+	)
+	default int sessionTimeout()
+	{
+		return 5;
+	}
+
+
 }
