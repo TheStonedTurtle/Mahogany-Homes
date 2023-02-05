@@ -5,10 +5,7 @@ import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
@@ -430,6 +427,17 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			varbMap.put(spot.getVarb(), client.getVarbitValue(spot.getVarb()));
 		}
+	}
+
+	public Set<Integer> getRepairableVarbs(){
+		Collection<Integer> varbs = varbMap.keySet();
+
+		Set<Integer> repairableVarbs = new HashSet<>();
+
+		for (Integer varb : varbs){
+			if (doesHotspotRequireAttention(varb)) repairableVarbs.add(varb);
+		}
+		return repairableVarbs;
 	}
 
 	private void loadFromConfig()

@@ -80,20 +80,20 @@ class MahoganyHomesOverlay extends OverlayPanel
 			addLine(home.getName());
 			addLine(home.getHint());
 
-			if (config.showRequiredMaterials() && plugin.getContractTier() > 0)
-			{
-				addLine("");
-				addLine(home.getRequiredPlanks(plugin.getContractTier()));
-
-				String bars = home.getRequiredSteelBars(plugin.getContractTier());
-				if (bars != null)
-				{
-					addLine(bars);
-				}
-			}
-
 			if (plugin.distanceBetween(home.getArea(), player.getWorldLocation()) > 0)
 			{
+				if (config.showRequiredMaterials() && plugin.getContractTier() > 0)
+				{
+					addLine("");
+					addLine(home.getRequiredPlanks(plugin.getContractTier()));
+
+					String bars = home.getRequiredSteelBars(plugin.getContractTier());
+					if (bars != null)
+					{
+						addLine(bars);
+					}
+				}
+
 				if (config.worldMapIcon())
 				{
 					addLine("");
@@ -106,6 +106,20 @@ class MahoganyHomesOverlay extends OverlayPanel
 				final int count = plugin.getCompletedCount();
 				if (count > 0)
 				{
+
+					if (config.showRequiredMaterials() && plugin.getContractTier() > 0)
+					{
+
+						addLine(home.getRequiredPlanks(plugin.getRepairableVarbs()));
+
+						String bars = home.getRequiredSteelBars(plugin.getRepairableVarbs());
+						if (bars != null)
+						{
+							addLine(bars);
+						}
+					}
+
+					addLine("");
 					panelComponent.getChildren().add(LineComponent.builder()
 						.left(count + " task(s) remaining")
 						.leftColor(Color.RED)
