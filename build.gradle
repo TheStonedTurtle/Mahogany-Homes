@@ -28,7 +28,7 @@ dependencies {
 }
 
 group = 'thestonedturtle.mahoganyhomes'
-version = '1.5.2'
+version = '1.6'
 sourceCompatibility = '1.8'
 
 tasks.withType(JavaCompile) {
