@@ -80,20 +80,20 @@ class MahoganyHomesOverlay extends OverlayPanel
 			addLine(home.getName());
 			addLine(home.getHint());
 
-			if (config.showRequiredMaterials() && plugin.getContractTier() > 0)
-			{
-				addLine("");
-				addLine(home.getRequiredPlanks(plugin.getContractTier()));
-
-				String bars = home.getRequiredSteelBars(plugin.getContractTier());
-				if (bars != null)
-				{
-					addLine(bars);
-				}
-			}
-
 			if (plugin.distanceBetween(home.getArea(), player.getWorldLocation()) > 0)
 			{
+				if (config.showRequiredMaterials() && plugin.getContractTier() > 0)
+				{
+					addLine("");
+					addLine(home.getRequiredPlanks(plugin.getContractTier()));
+
+					String bars = home.getRequiredSteelBars(plugin.getContractTier());
+					if (bars != null)
+					{
+						addLine(bars);
+					}
+				}
+
 				if (config.worldMapIcon())
 				{
 					addLine("");
@@ -102,6 +102,29 @@ class MahoganyHomesOverlay extends OverlayPanel
 			}
 			else
 			{
+				if (config.showRequiredMaterials() && plugin.getContractTier() > 0)
+				{
+					final RequiredMaterials requiredMaterials = home.getHotspotObjects().getRequiredMaterialsForVarbs(plugin.getRepairableVarbs());
+					// We only want to add an empty line if there's something to be displayed
+					if (requiredMaterials.MinPlanks > 0 || requiredMaterials.MinSteelBars > 0)
+					{
+						addLine("");
+					}
+
+					// Now we can add the actual text for the planks/bars
+					if (requiredMaterials.MinPlanks > 0)
+					{
+						String plural = requiredMaterials.MinPlanks > 1 ? "s" : "";
+						addLine(String.format("%d plank" + plural, requiredMaterials.MinPlanks));
+					}
+
+					if (requiredMaterials.MinSteelBars > 0)
+					{
+						String plural = requiredMaterials.MinSteelBars > 1 ? "s" : "";
+						addLine(String.format("%d steel bar" + plural, requiredMaterials.MinSteelBars));
+					}
+				}
+
 				addLine("");
 				final int count = plugin.getCompletedCount();
 				if (count > 0)
