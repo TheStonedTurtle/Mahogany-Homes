@@ -24,6 +24,8 @@
  */
 package thestonedturtle.mahoganyhomes;
 
+import java.awt.Color;
+import net.runelite.client.config.Alpha;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -61,22 +63,46 @@ public interface MahoganyHomesConfig extends Config
 		return true;
 	}
 
+	@Alpha
+	@ConfigItem(
+		keyName = "highlightHotspotColor",
+		name = "Hotspot Highlight Color",
+		description = "Configures the color the stairs will be highlighted",
+		position = 2
+	)
+	default Color highlightHotspotColor()
+	{
+		return new Color(0, 255, 0, 50);
+	}
+
 	@ConfigItem(
 		keyName = "highlightStairs",
 		name = "Highlight Stairs",
 		description = "Configures whether or not the stairs will be highlighted",
-		position = 2
+		position = 3
 	)
 	default boolean highlightStairs()
 	{
 		return true;
 	}
 
+	@Alpha
+	@ConfigItem(
+		keyName = "highlightStairsColor",
+		name = "Stairs Highlight Color",
+		description = "Configures the color the stairs will be highlighted",
+		position = 4
+	)
+	default Color highlightStairsColor()
+	{
+		return new Color(0, 255, 0, 20);
+	}
+
 	@ConfigItem(
 		keyName = "textOverlay",
 		name = "Display Text Overlay",
 		description = "Configures whether or not the text overlay will be displayed for your current contract",
-		position = 3
+		position = 5
 	)
 	default boolean textOverlay()
 	{
@@ -87,7 +113,7 @@ public interface MahoganyHomesConfig extends Config
 		keyName = "highlightHotspots",
 		name = "Highlight Building Hotspots",
 		description = "Configures whether or not the building hotspots will be highlighted",
-		position = 4
+		position = 6
 	)
 	default boolean highlightHotspots()
 	{
@@ -98,7 +124,7 @@ public interface MahoganyHomesConfig extends Config
 		keyName = "showRequiredMaterials",
 		name = "Display Required Materials",
 		description = "Configures whether or not to display the required materials for your current task",
-		position = 5
+		position = 7
 	)
 	default boolean showRequiredMaterials()
 	{
@@ -109,7 +135,7 @@ public interface MahoganyHomesConfig extends Config
 		keyName = "showSessionStats",
 		name = "Display Session Stats",
 		description = "Configures whether or not the amount of contracts and the points received from those contracts is displayed inside the overlay",
-		position = 6
+		position = 8
 	)
 	default boolean showSessionStats()
 	{
@@ -125,7 +151,7 @@ public interface MahoganyHomesConfig extends Config
 		name = "Session Timeout",
 		description = "Configures how many minutes must pass before the session timeouts after not having any activity.<br/>" +
 			"Value must be between 1 and 60 minute(s)",
-		position = 7
+		position = 9
 	)
 	default int sessionTimeout()
 	{

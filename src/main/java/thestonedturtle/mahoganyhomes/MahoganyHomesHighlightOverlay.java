@@ -39,8 +39,6 @@ class MahoganyHomesHighlightOverlay extends Overlay
 {
 	public static final Color CLICKBOX_BORDER_COLOR = Color.ORANGE;
 	public static final Color CLICKBOX_HOVER_BORDER_COLOR = CLICKBOX_BORDER_COLOR.darker();
-	public static final Color CLICKBOX_FILL_COLOR = new Color(0, 255, 0, 50);
-	public static final Color LADDER_FILL_COLOR = new Color(0, 255, 0, 20);
 
 	private final MahoganyHomesPlugin plugin;
 	private final MahoganyHomesConfig config;
@@ -78,7 +76,7 @@ class MahoganyHomesHighlightOverlay extends Overlay
 				continue;
 			}
 
-			Color fillColor = CLICKBOX_FILL_COLOR;
+			Color fillColor = config.highlightHotspotColor();
 			final Hotspot spot = Hotspot.getByObjectId(gameObject.getId());
 			if (spot == null)
 			{
@@ -88,7 +86,7 @@ class MahoganyHomesHighlightOverlay extends Overlay
 					continue;
 				}
 
-				fillColor = LADDER_FILL_COLOR;
+				fillColor = config.highlightStairsColor();
 			}
 			else
 			{
