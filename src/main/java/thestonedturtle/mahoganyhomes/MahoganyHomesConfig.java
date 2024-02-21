@@ -63,46 +63,11 @@ public interface MahoganyHomesConfig extends Config
 		return true;
 	}
 
-	@Alpha
-	@ConfigItem(
-		keyName = "highlightHotspotColor",
-		name = "Hotspot Highlight Color",
-		description = "Configures the color the hotspots will be highlighted",
-		position = 2
-	)
-	default Color highlightHotspotColor()
-	{
-		return new Color(0, 255, 0, 50);
-	}
-
-	@ConfigItem(
-		keyName = "highlightStairs",
-		name = "Highlight Stairs",
-		description = "Configures whether or not the stairs will be highlighted",
-		position = 3
-	)
-	default boolean highlightStairs()
-	{
-		return true;
-	}
-
-	@Alpha
-	@ConfigItem(
-		keyName = "highlightStairsColor",
-		name = "Stairs Highlight Color",
-		description = "Configures the color the stairs will be highlighted",
-		position = 4
-	)
-	default Color highlightStairsColor()
-	{
-		return new Color(0, 255, 0, 20);
-	}
-
 	@ConfigItem(
 		keyName = "textOverlay",
 		name = "Display Text Overlay",
 		description = "Configures whether or not the text overlay will be displayed for your current contract",
-		position = 5
+		position = 2
 	)
 	default boolean textOverlay()
 	{
@@ -110,44 +75,10 @@ public interface MahoganyHomesConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "highlightHotspots",
-		name = "Highlight Building Hotspots",
-		description = "Configures whether or not the building hotspots will be highlighted",
-		position = 6
-	)
-	default boolean highlightHotspots()
-	{
-		return true;
-	}
-
-	@ConfigItem(
-			keyName = "highlightTeleports",
-			name = "Highlight Teleports",
-			description = "Configures whether or not the teleport items will be highlighted",
-			position = 7
-	)
-	default boolean highlightTeleports()
-	{
-		return true;
-	}
-
-	@Alpha
-	@ConfigItem(
-			keyName = "highlightTeleportsColor",
-			name = "Teleport Highlight Color",
-			description = "Configures the color your teleports will be highlighted",
-			position = 8
-	)
-	default Color highlightTeleportsColor()
-	{
-		return new Color(0, 255, 255, 50);
-	}
-
-	@ConfigItem(
 		keyName = "showRequiredMaterials",
 		name = "Display Required Materials",
 		description = "Configures whether or not to display the required materials for your current task",
-		position = 9
+		position = 3
 	)
 	default boolean showRequiredMaterials()
 	{
@@ -158,7 +89,7 @@ public interface MahoganyHomesConfig extends Config
 		keyName = "showSessionStats",
 		name = "Display Session Stats",
 		description = "Configures whether or not the amount of contracts and the points received from those contracts is displayed inside the overlay",
-		position = 10
+		position = 4
 	)
 	default boolean showSessionStats()
 	{
@@ -174,12 +105,79 @@ public interface MahoganyHomesConfig extends Config
 		name = "Session Timeout",
 		description = "Configures how many minutes must pass before the session timeouts after not having any activity.<br/>" +
 			"Value must be between 1 and 60 minute(s)",
-		position = 11
+		position = 5
 	)
 	default int sessionTimeout()
 	{
 		return 5;
 	}
 
+	@ConfigItem(
+		keyName = "highlightHotspots",
+		name = "Highlight Building Hotspots",
+		description = "Configures whether or not the building hotspots will be highlighted",
+		position = 6
+	)
+	default boolean highlightHotspots()
+	{
+		return true;
+	}
 
+	@Alpha
+	@ConfigItem(
+		keyName = "highlightHotspotColor",
+		name = "Hotspot Highlight Color",
+		description = "Configures the color the hotspots will be highlighted",
+		position = 7
+	)
+	default Color highlightHotspotColor()
+	{
+		return new Color(0, 255, 0, 50);
+	}
+
+	@ConfigItem(
+		keyName = "highlightStairs",
+		name = "Highlight Stairs",
+		description = "Configures whether or not the stairs will be highlighted",
+		position = 8
+	)
+	default boolean highlightStairs()
+	{
+		return true;
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "highlightStairsColor",
+		name = "Stairs Highlight Color",
+		description = "Configures the color the stairs will be highlighted",
+		position = 9
+	)
+	default Color highlightStairsColor()
+	{
+		return new Color(0, 255, 0, 20);
+	}
+
+	@ConfigItem(
+		keyName = "highlightTeleports",
+		name = "Highlight Teleports",
+		description = "Configures whether or not the teleport items will be highlighted",
+		position = 10
+	)
+	default boolean highlightTeleports()
+	{
+		return true;
+	}
+
+	@Alpha
+	@ConfigItem(
+		keyName = "highlightTeleportsColor",
+		name = "Teleport Highlight Color",
+		description = "Configures the color your teleports will be highlighted",
+		position = 11
+	)
+	default Color highlightTeleportsColor()
+	{
+		return new Color(0, 255, 255, 50);
+	}
 }
