@@ -28,9 +28,6 @@ import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
-import net.runelite.api.InventoryID;
-import net.runelite.api.Item;
-import net.runelite.api.ItemContainer;
 import net.runelite.api.events.UsernameChanged;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.widgets.Widget;
@@ -428,7 +425,7 @@ public class MahoganyHomesPlugin extends Plugin
 
 		if (config.highlightTeleports() && client.getLocalPlayer() != null)
 		{
-			teleportItem = currentHome.getTeleportItem(client);
+			teleportItem = currentHome.getTeleportItems().getClosestTeleportItemOnPlayer(client);
 		}
 	}
 

@@ -26,7 +26,6 @@ package thestonedturtle.mahoganyhomes;
 
 import com.google.common.collect.ImmutableSet;
 import lombok.Getter;
-import net.runelite.api.Client;
 import net.runelite.api.NpcID;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
@@ -146,10 +145,5 @@ enum Home
 	static boolean isLadder(final int objID)
 	{
 		return LADDERS.contains(objID);
-	}
-
-	TeleportItem getTeleportItem(Client client)
-	{
-		return this.teleportItems.getClosestTeleportItemOnPlayer(client);
 	}
 }
