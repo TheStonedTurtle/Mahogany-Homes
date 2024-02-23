@@ -30,8 +30,8 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.UsernameChanged;
 import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -329,7 +329,7 @@ public class MahoganyHomesPlugin extends Plugin
 
 	private void checkForContractTierDialog()
 	{
-		final Widget dialog = client.getWidget(WidgetInfo.DIALOG_PLAYER_TEXT);
+		final Widget dialog = client.getWidget(ComponentID.DIALOG_PLAYER_TEXT);
 		if (dialog == null)
 		{
 			return;
@@ -361,7 +361,7 @@ public class MahoganyHomesPlugin extends Plugin
 	// Check for NPC dialog assigning or reminding us of a contract
 	private void checkForAssignmentDialog()
 	{
-		final Widget dialog = client.getWidget(WidgetInfo.DIALOG_NPC_TEXT);
+		final Widget dialog = client.getWidget(ComponentID.DIALOG_NPC_TEXT);
 		if (dialog == null)
 		{
 			return;
