@@ -67,7 +67,7 @@ public interface MahoganyHomesConfig extends Config
 	@ConfigItem(
 		keyName = "highlightHotspotColor",
 		name = "Hotspot Highlight Color",
-		description = "Configures the color the stairs will be highlighted",
+		description = "Configures the color the hotspots will be highlighted",
 		position = 2
 	)
 	default Color highlightHotspotColor()
@@ -121,10 +121,33 @@ public interface MahoganyHomesConfig extends Config
 	}
 
 	@ConfigItem(
+			keyName = "highlightTeleports",
+			name = "Highlight Teleports",
+			description = "Configures whether or not the teleport items will be highlighted",
+			position = 7
+	)
+	default boolean highlightTeleports()
+	{
+		return true;
+	}
+
+	@Alpha
+	@ConfigItem(
+			keyName = "highlightTeleportsColor",
+			name = "Teleport Highlight Color",
+			description = "Configures the color your teleports will be highlighted",
+			position = 8
+	)
+	default Color highlightTeleportsColor()
+	{
+		return new Color(0, 255, 255, 50);
+	}
+
+	@ConfigItem(
 		keyName = "showRequiredMaterials",
 		name = "Display Required Materials",
 		description = "Configures whether or not to display the required materials for your current task",
-		position = 7
+		position = 9
 	)
 	default boolean showRequiredMaterials()
 	{
@@ -135,7 +158,7 @@ public interface MahoganyHomesConfig extends Config
 		keyName = "showSessionStats",
 		name = "Display Session Stats",
 		description = "Configures whether or not the amount of contracts and the points received from those contracts is displayed inside the overlay",
-		position = 8
+		position = 10
 	)
 	default boolean showSessionStats()
 	{
@@ -151,7 +174,7 @@ public interface MahoganyHomesConfig extends Config
 		name = "Session Timeout",
 		description = "Configures how many minutes must pass before the session timeouts after not having any activity.<br/>" +
 			"Value must be between 1 and 60 minute(s)",
-		position = 9
+		position = 11
 	)
 	default int sessionTimeout()
 	{

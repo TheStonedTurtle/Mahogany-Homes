@@ -78,6 +78,9 @@ public class MahoganyHomesPlugin extends Plugin
 	private MahoganyHomesHighlightOverlay highlightOverlay;
 
 	@Inject
+	private TeleportItemOverlay teleportItemOverlay;
+
+	@Inject
 	private WorldMapPointManager worldMapPointManager;
 
 	@Provides
@@ -101,6 +104,9 @@ public class MahoganyHomesPlugin extends Plugin
 	@Getter
 	private int contractTier = 0;
 
+	@Getter
+	public TeleportItem teleportItem;
+
 	// Used to auto disable plugin if nothing has changed recently.
 	private Instant lastChanged;
 	private int lastCompletedCount = -1;
@@ -117,6 +123,7 @@ public class MahoganyHomesPlugin extends Plugin
 	{
 		overlayManager.add(textOverlay);
 		overlayManager.add(highlightOverlay);
+		overlayManager.add(teleportItemOverlay);
 		if (client.getGameState() == GameState.LOGGED_IN)
 		{
 			loadFromConfig();
@@ -132,6 +139,7 @@ public class MahoganyHomesPlugin extends Plugin
 	{
 		overlayManager.remove(textOverlay);
 		overlayManager.remove(highlightOverlay);
+		overlayManager.remove(teleportItemOverlay);
 		worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
 		client.clearHintArrow();
 		varbMap.clear();
@@ -139,6 +147,7 @@ public class MahoganyHomesPlugin extends Plugin
 		currentHome = null;
 		mapIcon = null;
 		mapArrow = null;
+		teleportItem = null;
 		lastChanged = null;
 		lastCompletedCount = -1;
 		contractTier = 0;
@@ -295,7 +304,10 @@ public class MahoganyHomesPlugin extends Plugin
 			return;
 		}
 
-		refreshHintArrow(client.getLocalPlayer().getWorldLocation());
+		WorldPoint playerLocation = client.getLocalPlayer().getWorldLocation();
+
+		refreshHintArrow(playerLocation);
+		refreshTeleportItem(playerLocation);
 	}
 
 	@Subscribe
@@ -396,6 +408,7 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
 			contractTier = 0;
+			teleportItem = null;
 			return;
 		}
 
@@ -408,6 +421,11 @@ public class MahoganyHomesPlugin extends Plugin
 		if (config.displayHintArrows() && client.getLocalPlayer() != null)
 		{
 			refreshHintArrow(client.getLocalPlayer().getWorldLocation());
+		}
+
+		if (config.highlightTeleports() && client.getLocalPlayer() != null)
+		{
+			teleportItem = currentHome.getTeleportItems().getClosestTeleportItemOnPlayer(client);
 		}
 	}
 
@@ -642,5 +660,18 @@ public class MahoganyHomesPlugin extends Plugin
 			.stream()
 			.filter(this::doesHotspotRequireAttention)
 			.collect(Collectors.toSet());
+	}
+
+	private void refreshTeleportItem(final WorldPoint playerPos)
+	{
+		if (currentHome == null || teleportItem == null || !config.highlightTeleports())
+		{
+			return;
+		}
+
+		if (distanceBetween(currentHome.getArea(), playerPos) - teleportItem.Distance < 10)
+		{
+			teleportItem = null;
+		}
 	}
 }
