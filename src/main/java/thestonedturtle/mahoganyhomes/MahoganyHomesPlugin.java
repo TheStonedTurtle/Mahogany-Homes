@@ -168,6 +168,8 @@ public class MahoganyHomesPlugin extends Plugin
 		lastChanged = null;
 		lastCompletedCount = -1;
 		contractTier = 0;
+		numPlanksInInventory = 0;
+		numSteelBarsInInventory = 0;
 		wasTimedOut = false;
 	}
 
@@ -176,7 +178,10 @@ public class MahoganyHomesPlugin extends Plugin
 	{
 		if (c.getGroup().equals(PLANK_SACK_GROUP_NAME) && c.getKey().equals(PLANK_COUNT_KEY))
 		{
-			updateResourcesInInventory();
+			if (contractTier > 0 && !isPluginTimedOut())
+			{
+				updateResourcesInInventory();
+			}
 			return;
 		}
 		if (!c.getGroup().equals(MahoganyHomesConfig.GROUP_NAME))
@@ -352,6 +357,10 @@ public class MahoganyHomesPlugin extends Plugin
 	@Subscribe
 	public void onItemContainerChanged(ItemContainerChanged event)
 	{
+		if (contractTier == 0 || isPluginTimedOut())
+		{
+			return;
+		}
 		if (event.getContainerId() == InventoryID.INVENTORY.getId())
 		{
 			updateResourcesInInventory();
@@ -387,6 +396,7 @@ public class MahoganyHomesPlugin extends Plugin
 					contractTier = 4;
 					break;
 			}
+			updateResourcesInInventory();
 		}
 	}
 
@@ -441,6 +451,8 @@ public class MahoganyHomesPlugin extends Plugin
 			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
 			contractTier = 0;
 			teleportItem = null;
+			numPlanksInInventory = 0;
+			numSteelBarsInInventory = 0;
 			return;
 		}
 
@@ -527,6 +539,7 @@ public class MahoganyHomesPlugin extends Plugin
 			contractTier = 0;
 			configManager.unsetConfiguration(group, MahoganyHomesConfig.TIER_KEY);
 		}
+		updateResourcesInInventory();
 	}
 
 	private void updateConfig()
@@ -709,6 +722,12 @@ public class MahoganyHomesPlugin extends Plugin
 
 	void updateResourcesInInventory()
 	{
+		if (contractTier == 0)
+		{
+			this.numPlanksInInventory = 0;
+			this.numSteelBarsInInventory = 0;
+			return;
+		}
 		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY.getId());
 		if (inventoryContainer == null)
 		{
@@ -722,14 +741,14 @@ public class MahoganyHomesPlugin extends Plugin
 			{
 				num_steel_bars++;
 			}
-			else if (contractTier > 0 && item.getId() == PLANK_IDS.get(contractTier - 1))
+			else if (item.getId() == PLANK_IDS.get(contractTier - 1))
 			{
 				num_planks++;
 			}
 		}
 
 		Integer plank_sack_plugin_count = configManager.getRSProfileConfiguration(PLANK_SACK_GROUP_NAME, PLANK_COUNT_KEY, Integer.class);
-		if (contractTier > 0 && plank_sack_plugin_count != null)
+		if (plank_sack_plugin_count != null)
 		{
 			num_planks += plank_sack_plugin_count;
 		}
