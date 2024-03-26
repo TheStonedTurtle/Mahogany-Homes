@@ -722,7 +722,7 @@ public class MahoganyHomesPlugin extends Plugin
 			{
 				num_steel_bars++;
 			}
-			if (contractTier > 0 && item.getId() == PLANK_IDS.get(contractTier - 1))
+			else if (contractTier > 0 && item.getId() == PLANK_IDS.get(contractTier - 1))
 			{
 				num_planks++;
 			}
