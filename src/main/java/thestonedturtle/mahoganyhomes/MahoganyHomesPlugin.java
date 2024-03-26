@@ -33,6 +33,7 @@ import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.UsernameChanged;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.widgets.ComponentID;
@@ -61,6 +62,10 @@ public class MahoganyHomesPlugin extends Plugin
 	private static final Pattern REQUEST_CONTACT_TIER = Pattern.compile("Could I have an? (\\w*) contract please\\?");
 
 	private static final List<Integer> PLANK_IDS = Arrays.asList(ItemID.PLANK, ItemID.OAK_PLANK, ItemID.TEAK_PLANK, ItemID.MAHOGANY_PLANK);
+
+	private static final String PLANK_SACK_GROUP_NAME = "planksack";
+
+	private static final String PLANK_COUNT_KEY = "plankcount";
 
 	@Getter
 	@Inject
@@ -114,6 +119,11 @@ public class MahoganyHomesPlugin extends Plugin
 	@Getter
 	public TeleportItem teleportItem;
 
+	@Getter
+	private int numPlanksInInventory = 0;
+	@Getter
+	private int numSteelBarsInInventory = 0;
+
 	// Used to auto disable plugin if nothing has changed recently.
 	private Instant lastChanged;
 	private int lastCompletedCount = -1;
@@ -164,6 +174,11 @@ public class MahoganyHomesPlugin extends Plugin
 	@Subscribe
 	public void onConfigChanged(ConfigChanged c)
 	{
+		if (c.getGroup().equals(PLANK_SACK_GROUP_NAME) && c.getKey().equals(PLANK_COUNT_KEY))
+		{
+			updateResourcesInInventory();
+			return;
+		}
 		if (!c.getGroup().equals(MahoganyHomesConfig.GROUP_NAME))
 		{
 			return;
@@ -333,6 +348,16 @@ public class MahoganyHomesPlugin extends Plugin
 			updateConfig();
 		}
 	}
+
+	@Subscribe
+	public void onItemContainerChanged(ItemContainerChanged event)
+	{
+		if (event.getContainerId() == InventoryID.INVENTORY.getId())
+		{
+			updateResourcesInInventory();
+		}
+	}
+
 
 	private void checkForContractTierDialog()
 	{
@@ -682,50 +707,34 @@ public class MahoganyHomesPlugin extends Plugin
 		}
 	}
 
-	int getNumSteelBarsInInventory()
+	void updateResourcesInInventory()
 	{
+		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY.getId());
+		if (inventoryContainer == null)
+		{
+			return;
+		}
 		int num_steel_bars = 0;
-
-		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY.getId());
-		if (inventoryContainer != null)
-		{
-			for (Item item : inventoryContainer.getItems())
-			{
-				if (item.getId() == ItemID.STEEL_BAR)
-				{
-					num_steel_bars++;
-				}
-			}
-		}
-		return num_steel_bars;
-	}
-	int getNumPlanksInInventory()
-	{
-		if (contractTier <= 0)
-		{
-			return 0;
-		}
 		int num_planks = 0;
-
-		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY.getId());
-		if (inventoryContainer != null)
+		for (Item item : inventoryContainer.getItems())
 		{
-			for (Item item : inventoryContainer.getItems())
+			if (item.getId() == ItemID.STEEL_BAR)
 			{
-				if (item.getId() == PLANK_IDS.get(contractTier - 1))
-				{
-					num_planks++;
-				}
+				num_steel_bars++;
+			}
+			if (contractTier > 0 && item.getId() == PLANK_IDS.get(contractTier - 1))
+			{
+				num_planks++;
 			}
 		}
 
-		// If the plank sack plugin is installed, add its count of planks in the plank sack.
-		Integer plank_sack_plugin_count = configManager.getRSProfileConfiguration("planksack", "plankcount", Integer.class);
-		if (plank_sack_plugin_count != null)
+		Integer plank_sack_plugin_count = configManager.getRSProfileConfiguration(PLANK_SACK_GROUP_NAME, PLANK_COUNT_KEY, Integer.class);
+		if (contractTier > 0 && plank_sack_plugin_count != null)
 		{
 			num_planks += plank_sack_plugin_count;
 		}
 
-		return num_planks;
+		this.numPlanksInInventory = num_planks;
+		this.numSteelBarsInInventory = num_steel_bars;
 	}
 }
