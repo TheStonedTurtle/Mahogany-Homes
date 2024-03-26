@@ -687,9 +687,12 @@ public class MahoganyHomesPlugin extends Plugin
 		int num_steel_bars = 0;
 
 		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY.getId());
-		if (inventoryContainer != null) {
-			for (Item item : inventoryContainer.getItems()) {
-				if (item.getId() == ItemID.STEEL_BAR) {
+		if (inventoryContainer != null)
+		{
+			for (Item item : inventoryContainer.getItems())
+			{
+				if (item.getId() == ItemID.STEEL_BAR)
+				{
 					num_steel_bars++;
 				}
 			}
@@ -698,15 +701,19 @@ public class MahoganyHomesPlugin extends Plugin
 	}
 	int getNumPlanksInInventory()
 	{
-		if (contractTier <= 0) {
+		if (contractTier <= 0)
+		{
 			return 0;
 		}
 		int num_planks = 0;
 
 		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY.getId());
-		if (inventoryContainer != null) {
-			for (Item item : inventoryContainer.getItems()) {
-				if (item.getId() == PLANK_IDS.get(contractTier - 1) ) {
+		if (inventoryContainer != null)
+		{
+			for (Item item : inventoryContainer.getItems())
+			{
+				if (item.getId() == PLANK_IDS.get(contractTier - 1))
+				{
 					num_planks++;
 				}
 			}
@@ -714,7 +721,8 @@ public class MahoganyHomesPlugin extends Plugin
 
 		// If the plank sack plugin is installed, add its count of planks in the plank sack.
 		Integer plank_sack_plugin_count = configManager.getRSProfileConfiguration("planksack", "plankcount", Integer.class);
-		if (plank_sack_plugin_count != null) {
+		if (plank_sack_plugin_count != null)
+		{
 			num_planks += plank_sack_plugin_count;
 		}
 

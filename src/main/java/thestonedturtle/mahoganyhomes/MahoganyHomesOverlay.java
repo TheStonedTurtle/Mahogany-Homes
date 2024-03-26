@@ -67,8 +67,10 @@ class MahoganyHomesOverlay extends OverlayPanel
 	// Adds a line to the panel describing a material. type is the
 	// un-pluralized name of the material, min and max are the range
 	// required, and have is the number in the player's inventory.
-	void addMaterialLine(String type, int min, int max, int have) {
-		if (min == 0 && max == 0) {
+	void addMaterialLine(String type, int min, int max, int have)
+	{
+		if (min == 0 && max == 0)
+		{
 			return;
 		}
 		LineComponent.LineComponentBuilder line = LineComponent.builder();
@@ -77,21 +79,29 @@ class MahoganyHomesOverlay extends OverlayPanel
 		{
 			String plural = min > 1 ? "s" : "";
 			line = line.left(String.format("%d %s%s", min, type, plural));
-		} else {
+		}
+		else
+		{
 			// Always pluralize by adding an "s"
 			line = line.left(String.format("%d - %d %ss", min, max, type));
 		}
 
 		// If asked for, add a colored symbol on the right depicting if
 		// the player has enough supplies.
-		if (config.checkSupplies()) {
-			if (have >= max) {
+		if (config.checkSupplies())
+		{
+			if (have >= max)
+			{
 				line = line.right("✓").rightColor(Color.GREEN);
-			} else if (have >= min) {
+			}
+			else if (have >= min)
+			{
 				// Player has between max and min, so it's not
 				// certain if they have enough.
 				line = line.right("?").rightColor(Color.YELLOW);
-			} else {
+			}
+			else
+			{
 				line = line.right("x").rightColor(Color.RED);
 			}
 		}
@@ -99,8 +109,10 @@ class MahoganyHomesOverlay extends OverlayPanel
 	}
 
 	// Adds lines to the panel describing the materials required.
-	void addRequiredMaterials(RequiredMaterials mats) {
-		if (mats == null) {
+	void addRequiredMaterials(RequiredMaterials mats)
+	{
+		if (mats == null)
+		{
 			return;
 		}
 

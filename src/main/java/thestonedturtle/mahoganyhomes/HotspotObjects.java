@@ -151,13 +151,15 @@ public enum HotspotObjects
 			final HotspotType type = this.objects[i].getType();
 			switch (type.getMaterial())
 			{
-				case PLANK: {
+				case PLANK:
+				{
 					int n = required.MinPlanks + type.getNumOfMaterial();
 					required.setMinPlanks(n);
 					required.setMaxPlanks(n);
 					break;
 				}
-				case STEEL_BAR: {
+				case STEEL_BAR:
+				{
 					int n = required.MinSteelBars + type.getNumOfMaterial();
 					required.setMinSteelBars(n);
 					required.setMaxSteelBars(n);
