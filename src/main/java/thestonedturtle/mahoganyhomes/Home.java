@@ -94,43 +94,6 @@ enum Home
 		return WordUtils.capitalize(name().toLowerCase());
 	}
 
-	String getRequiredPlanks(int tier)
-	{
-		RequiredMaterials requiredMaterials = this.requiredMaterialsByTier.getByTier(tier);
-		if (requiredMaterials == null)
-		{
-			return null;
-		}
-
-		if (requiredMaterials.MinPlanks == requiredMaterials.MaxPlanks)
-		{
-			return String.format("%d planks", requiredMaterials.MinPlanks);
-		}
-
-		return String.format("%d - %d planks", requiredMaterials.MinPlanks, requiredMaterials.MaxPlanks);
-	}
-
-	String getRequiredSteelBars(int tier)
-	{
-		RequiredMaterials requiredMaterials = this.requiredMaterialsByTier.getByTier(tier);
-		if (requiredMaterials == null)
-		{
-			return null;
-		}
-
-		if (requiredMaterials.MinSteelBars + requiredMaterials.MaxSteelBars == 0)
-		{
-			return null;
-		}
-
-		if (requiredMaterials.MinSteelBars == requiredMaterials.MaxSteelBars)
-		{
-			return String.format("%d steel bar", requiredMaterials.MinSteelBars);
-		}
-
-		return String.format("%d - %d steel bars", requiredMaterials.MinSteelBars, requiredMaterials.MaxSteelBars);
-	}
-
 	private static final ImmutableSet<Integer> LADDERS;
 	static
 	{

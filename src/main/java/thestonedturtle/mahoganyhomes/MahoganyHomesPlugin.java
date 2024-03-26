@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,10 @@ import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.api.GameState;
+import net.runelite.api.InventoryID;
+import net.runelite.api.Item;
+import net.runelite.api.ItemContainer;
+import net.runelite.api.ItemID;
 import net.runelite.api.NPC;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
@@ -28,6 +33,7 @@ import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.UsernameChanged;
 import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.widgets.ComponentID;
@@ -54,6 +60,12 @@ public class MahoganyHomesPlugin extends Plugin
 	static final Pattern CONTRACT_PATTERN = Pattern.compile("(Please could you g|G)o see (\\w*)[ ,][\\w\\s,-]*[?.] You can get another job once you have furnished \\w* home\\.");
 	private static final Pattern CONTRACT_FINISHED = Pattern.compile("You have completed [\\d,]* contracts with a total of [\\d,]* points?\\.");
 	private static final Pattern REQUEST_CONTACT_TIER = Pattern.compile("Could I have an? (\\w*) contract please\\?");
+
+	private static final List<Integer> PLANK_IDS = Arrays.asList(ItemID.PLANK, ItemID.OAK_PLANK, ItemID.TEAK_PLANK, ItemID.MAHOGANY_PLANK);
+
+	private static final String PLANK_SACK_GROUP_NAME = "planksack";
+
+	private static final String PLANK_COUNT_KEY = "plankcount";
 
 	@Getter
 	@Inject
@@ -107,6 +119,11 @@ public class MahoganyHomesPlugin extends Plugin
 	@Getter
 	public TeleportItem teleportItem;
 
+	@Getter
+	private int numPlanksInInventory = 0;
+	@Getter
+	private int numSteelBarsInInventory = 0;
+
 	// Used to auto disable plugin if nothing has changed recently.
 	private Instant lastChanged;
 	private int lastCompletedCount = -1;
@@ -151,12 +168,22 @@ public class MahoganyHomesPlugin extends Plugin
 		lastChanged = null;
 		lastCompletedCount = -1;
 		contractTier = 0;
+		numPlanksInInventory = 0;
+		numSteelBarsInInventory = 0;
 		wasTimedOut = false;
 	}
 
 	@Subscribe
 	public void onConfigChanged(ConfigChanged c)
 	{
+		if (c.getGroup().equals(PLANK_SACK_GROUP_NAME) && c.getKey().equals(PLANK_COUNT_KEY))
+		{
+			if (contractTier > 0 && !isPluginTimedOut())
+			{
+				updateResourcesInInventory();
+			}
+			return;
+		}
 		if (!c.getGroup().equals(MahoganyHomesConfig.GROUP_NAME))
 		{
 			return;
@@ -327,6 +354,20 @@ public class MahoganyHomesPlugin extends Plugin
 		}
 	}
 
+	@Subscribe
+	public void onItemContainerChanged(ItemContainerChanged event)
+	{
+		if (contractTier == 0 || isPluginTimedOut())
+		{
+			return;
+		}
+		if (event.getContainerId() == InventoryID.INVENTORY.getId())
+		{
+			updateResourcesInInventory();
+		}
+	}
+
+
 	private void checkForContractTierDialog()
 	{
 		final Widget dialog = client.getWidget(ComponentID.DIALOG_PLAYER_TEXT);
@@ -355,6 +396,7 @@ public class MahoganyHomesPlugin extends Plugin
 					contractTier = 4;
 					break;
 			}
+			updateResourcesInInventory();
 		}
 	}
 
@@ -409,6 +451,8 @@ public class MahoganyHomesPlugin extends Plugin
 			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
 			contractTier = 0;
 			teleportItem = null;
+			numPlanksInInventory = 0;
+			numSteelBarsInInventory = 0;
 			return;
 		}
 
@@ -495,6 +539,7 @@ public class MahoganyHomesPlugin extends Plugin
 			contractTier = 0;
 			configManager.unsetConfiguration(group, MahoganyHomesConfig.TIER_KEY);
 		}
+		updateResourcesInInventory();
 	}
 
 	private void updateConfig()
@@ -673,5 +718,42 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			teleportItem = null;
 		}
+	}
+
+	void updateResourcesInInventory()
+	{
+		if (contractTier == 0)
+		{
+			this.numPlanksInInventory = 0;
+			this.numSteelBarsInInventory = 0;
+			return;
+		}
+		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY.getId());
+		if (inventoryContainer == null)
+		{
+			return;
+		}
+		int num_steel_bars = 0;
+		int num_planks = 0;
+		for (Item item : inventoryContainer.getItems())
+		{
+			if (item.getId() == ItemID.STEEL_BAR)
+			{
+				num_steel_bars++;
+			}
+			else if (item.getId() == PLANK_IDS.get(contractTier - 1))
+			{
+				num_planks++;
+			}
+		}
+
+		Integer plank_sack_plugin_count = configManager.getRSProfileConfiguration(PLANK_SACK_GROUP_NAME, PLANK_COUNT_KEY, Integer.class);
+		if (plank_sack_plugin_count != null)
+		{
+			num_planks += plank_sack_plugin_count;
+		}
+
+		this.numPlanksInInventory = num_planks;
+		this.numSteelBarsInInventory = num_steel_bars;
 	}
 }

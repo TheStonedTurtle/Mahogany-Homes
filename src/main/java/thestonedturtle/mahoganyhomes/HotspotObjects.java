@@ -152,11 +152,19 @@ public enum HotspotObjects
 			switch (type.getMaterial())
 			{
 				case PLANK:
-					required.setMinPlanks(required.MinPlanks + type.getNumOfMaterial());
+				{
+					int n = required.MinPlanks + type.getNumOfMaterial();
+					required.setMinPlanks(n);
+					required.setMaxPlanks(n);
 					break;
+				}
 				case STEEL_BAR:
-					required.setMinSteelBars(required.MinSteelBars + type.getNumOfMaterial());
+				{
+					int n = required.MinSteelBars + type.getNumOfMaterial();
+					required.setMinSteelBars(n);
+					required.setMaxSteelBars(n);
 					break;
+				}
 			}
 		}
 
