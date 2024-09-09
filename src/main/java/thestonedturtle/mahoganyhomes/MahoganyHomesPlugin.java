@@ -319,7 +319,7 @@ public class MahoganyHomesPlugin extends Plugin
 			return;
 		}
 
-        final Matcher matcher = CONTRACT_ASSIGNED.matcher(Text.removeTags(e.getMessage()));
+		final Matcher matcher = CONTRACT_ASSIGNED.matcher(Text.removeTags(e.getMessage()));
 		if (matcher.matches())
 		{
 			final String type = matcher.group(1).toLowerCase();
