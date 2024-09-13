@@ -53,6 +53,7 @@ public class MahoganyHomesPlugin extends Plugin
 	@VisibleForTesting
 	static final Pattern CONTRACT_PATTERN = Pattern.compile("(Please could you g|G)o see (\\w*)[ ,][\\w\\s,-]*[?.] You can get another job once you have furnished \\w* home\\.");
 	private static final Pattern CONTRACT_FINISHED = Pattern.compile("You have completed [\\d,]* contracts with a total of [\\d,]* points?\\.");
+	private static final Pattern CONTRACT_ASSIGNED = Pattern.compile("(\\w*) Contract: Go see [\\w\\s,-]*\\.");
 	private static final Pattern REQUEST_CONTACT_TIER = Pattern.compile("Could I have an? (\\w*) contract please\\?");
 
 	@Getter
@@ -318,6 +319,13 @@ public class MahoganyHomesPlugin extends Plugin
 			return;
 		}
 
+		final Matcher matcher = CONTRACT_ASSIGNED.matcher(Text.removeTags(e.getMessage()));
+		if (matcher.matches())
+		{
+			final String type = matcher.group(1).toLowerCase();
+			setContactTierFromString(type);
+		}
+
 		if (CONTRACT_FINISHED.matcher(Text.removeTags(e.getMessage())).matches())
 		{
 			sessionContracts++;
@@ -340,21 +348,26 @@ public class MahoganyHomesPlugin extends Plugin
 		if (matcher.matches())
 		{
 			final String type = matcher.group(1).toLowerCase();
-			switch (type)
-			{
-				case "beginner":
-					contractTier = 1;
-					break;
-				case "novice":
-					contractTier = 2;
-					break;
-				case "adept":
-					contractTier = 3;
-					break;
-				case "expert":
-					contractTier = 4;
-					break;
-			}
+			setContactTierFromString(type);
+		}
+	}
+
+	private void setContactTierFromString (String tier)
+	{
+		switch (tier)
+		{
+			case "beginner":
+				contractTier = 1;
+				break;
+			case "novice":
+				contractTier = 2;
+				break;
+			case "adept":
+				contractTier = 3;
+				break;
+			case "expert":
+				contractTier = 4;
+				break;
 		}
 	}
 
