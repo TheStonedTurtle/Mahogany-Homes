@@ -438,8 +438,13 @@ public class MahoganyHomesPlugin extends Plugin
 
 		if (config.highlightTeleports() && client.getLocalPlayer() != null)
 		{
-			teleportItem = currentHome.getTeleportItems().getClosestTeleportItemOnPlayer(client);
+			clientThread.invoke(this::updateTeleportItem);
 		}
+	}
+
+	private void updateTeleportItem()
+	{
+		teleportItem = currentHome.getTeleportItems().getClosestTeleportItemOnPlayer(client);
 	}
 
 	private void processGameObjects(final GameObject cur, final GameObject prev)
