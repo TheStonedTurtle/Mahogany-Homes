@@ -52,6 +52,8 @@ public class MahoganyHomesPlugin extends Plugin
 {
 	@VisibleForTesting
 	static final Pattern CONTRACT_PATTERN = Pattern.compile("(Please could you g|G)o see (\\w*)[ ,][\\w\\s,-]*[?.] You can get another job once you have furnished \\w* home\\.");
+	@VisibleForTesting
+	static final Pattern REMINDER_PATTERN = Pattern.compile("You're currently on an (\\w*) Contract\\. Go see (\\w*)[ ,][\\w\\s,-]*\\. You can get another job once you have furnished \\w* home\\.");
 	private static final Pattern CONTRACT_FINISHED = Pattern.compile("You have completed [\\d,]* contracts with a total of [\\d,]* points?\\.");
 	private static final Pattern CONTRACT_ASSIGNED = Pattern.compile("(\\w*) Contract: Go see [\\w\\s,-]*\\.");
 	private static final Pattern REQUEST_CONTACT_TIER = Pattern.compile("Could I have an? (\\w*) contract please\\?");
@@ -382,10 +384,21 @@ public class MahoganyHomesPlugin extends Plugin
 
 		final String npcText = Text.sanitizeMultilineText(dialog.getText());
 		final Matcher startContractMatcher = CONTRACT_PATTERN.matcher(npcText);
+		final Matcher reminderContract = REMINDER_PATTERN.matcher(npcText);
+		String name = null;
+		int tier = -1;
 		if (startContractMatcher.matches())
 		{
-			final String name = startContractMatcher.group(2);
+			name = startContractMatcher.group(2);
+		}
+		else if (reminderContract.matches())
+		{
+			name = reminderContract.group(2);
+			tier = getTierByText(reminderContract.group(1));
+		}
 
+		if (name != null)
+		{
 			// They may have asked for a contract but already had one, check the configs
 			if (contractTier == 0)
 			{
@@ -395,6 +408,13 @@ public class MahoganyHomesPlugin extends Plugin
 				{
 					return;
 				}
+			}
+
+			// If we could parse the tier from the message (only for reminders) make sure the current tier matches it
+			// update the tier and config with the parsed value
+			if (tier != -1)
+			{
+				contractTier = tier;
 			}
 
 			for (final Home h : Home.values())
@@ -690,6 +710,23 @@ public class MahoganyHomesPlugin extends Plugin
 		if (distanceBetween(currentHome.getArea(), playerPos) - teleportItem.Distance < 10)
 		{
 			teleportItem = null;
+		}
+	}
+
+	private int getTierByText(final String tierText)
+	{
+		switch (tierText)
+		{
+			case "Beginner":
+				return 1;
+			case "Novice":
+				return 2;
+			case "Adept":
+				return 3;
+			case "Expert":
+				return 4;
+			default:
+				return -1;
 		}
 	}
 }
