@@ -92,6 +92,8 @@ public enum TeleportItems
 	// Hosidius
 	BARBARA(new TeleportItem(ItemID.TELEPORT_TO_HOUSE, 14),
 		new TeleportItem(ItemID.HOSIDIUS_TELEPORT, 14),
+		new TeleportItem(ItemID.CONSTRUCT_CAPE, 14),
+		new TeleportItem(ItemID.CONSTRUCT_CAPET, 14),
 		new TeleportItem(ItemID.XERICS_TALISMAN, 27),
 		new TeleportItem(ItemID.KHAREDSTS_MEMOIRS, 70),
 		new TeleportItem(ItemID.BOOK_OF_THE_DEAD, 70)),
