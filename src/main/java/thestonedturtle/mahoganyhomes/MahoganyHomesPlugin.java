@@ -146,7 +146,7 @@ public class MahoganyHomesPlugin extends Plugin
 		overlayManager.add(teleportItemOverlay);
 		if (client.getGameState() == GameState.LOGGED_IN)
 		{
-			loadFromConfig();
+			clientThread.invoke(this::loadFromConfig);
 			clientThread.invoke(this::updateVarbMap);
 		}
 		lastChanged = Instant.now();
@@ -353,6 +353,7 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			final String type = matcher.group(1).toLowerCase();
 			setContactTierFromString(type);
+			updateResourcesInInventory();
 		}
 
 		if (CONTRACT_FINISHED.matcher(Text.removeTags(e.getMessage())).matches())
@@ -458,6 +459,7 @@ public class MahoganyHomesPlugin extends Plugin
 			{
 				contractTier = tier;
 			}
+			updateResourcesInInventory();
 
 			for (final Home h : Home.values())
 			{
