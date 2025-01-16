@@ -58,7 +58,10 @@ public class MahoganyHomesPlugin extends Plugin
 {
 	@VisibleForTesting
 	static final Pattern CONTRACT_PATTERN = Pattern.compile("(Please could you g|G)o see (\\w*)[ ,][\\w\\s,-]*[?.] You can get another job once you have furnished \\w* home\\.");
+	@VisibleForTesting
+	static final Pattern REMINDER_PATTERN = Pattern.compile("You're currently on an (\\w*) Contract\\. Go see (\\w*)[ ,][\\w\\s,-]*\\. You can get another job once you have furnished \\w* home\\.");
 	private static final Pattern CONTRACT_FINISHED = Pattern.compile("You have completed [\\d,]* contracts with a total of [\\d,]* points?\\.");
+	private static final Pattern CONTRACT_ASSIGNED = Pattern.compile("(\\w*) Contract: Go see [\\w\\s,-]*\\.");
 	private static final Pattern REQUEST_CONTACT_TIER = Pattern.compile("Could I have an? (\\w*) contract please\\?");
 
 	private static final List<Integer> PLANK_IDS = Arrays.asList(ItemID.PLANK, ItemID.OAK_PLANK, ItemID.TEAK_PLANK, ItemID.MAHOGANY_PLANK);
@@ -345,6 +348,13 @@ public class MahoganyHomesPlugin extends Plugin
 			return;
 		}
 
+		final Matcher matcher = CONTRACT_ASSIGNED.matcher(Text.removeTags(e.getMessage()));
+		if (matcher.matches())
+		{
+			final String type = matcher.group(1).toLowerCase();
+			setContactTierFromString(type);
+		}
+
 		if (CONTRACT_FINISHED.matcher(Text.removeTags(e.getMessage())).matches())
 		{
 			sessionContracts++;
@@ -381,22 +391,27 @@ public class MahoganyHomesPlugin extends Plugin
 		if (matcher.matches())
 		{
 			final String type = matcher.group(1).toLowerCase();
-			switch (type)
-			{
-				case "beginner":
-					contractTier = 1;
-					break;
-				case "novice":
-					contractTier = 2;
-					break;
-				case "adept":
-					contractTier = 3;
-					break;
-				case "expert":
-					contractTier = 4;
-					break;
-			}
+			setContactTierFromString(type);
 			updateResourcesInInventory();
+		}
+	}
+
+	private void setContactTierFromString (String tier)
+	{
+		switch (tier)
+		{
+			case "beginner":
+				contractTier = 1;
+				break;
+			case "novice":
+				contractTier = 2;
+				break;
+			case "adept":
+				contractTier = 3;
+				break;
+			case "expert":
+				contractTier = 4;
+				break;
 		}
 	}
 
@@ -411,10 +426,21 @@ public class MahoganyHomesPlugin extends Plugin
 
 		final String npcText = Text.sanitizeMultilineText(dialog.getText());
 		final Matcher startContractMatcher = CONTRACT_PATTERN.matcher(npcText);
+		final Matcher reminderContract = REMINDER_PATTERN.matcher(npcText);
+		String name = null;
+		int tier = -1;
 		if (startContractMatcher.matches())
 		{
-			final String name = startContractMatcher.group(2);
+			name = startContractMatcher.group(2);
+		}
+		else if (reminderContract.matches())
+		{
+			name = reminderContract.group(2);
+			tier = getTierByText(reminderContract.group(1));
+		}
 
+		if (name != null)
+		{
 			// They may have asked for a contract but already had one, check the configs
 			if (contractTier == 0)
 			{
@@ -424,6 +450,13 @@ public class MahoganyHomesPlugin extends Plugin
 				{
 					return;
 				}
+			}
+
+			// If we could parse the tier from the message (only for reminders) make sure the current tier matches it
+			// update the tier and config with the parsed value
+			if (tier != -1)
+			{
+				contractTier = tier;
 			}
 
 			for (final Home h : Home.values())
@@ -469,8 +502,13 @@ public class MahoganyHomesPlugin extends Plugin
 
 		if (config.highlightTeleports() && client.getLocalPlayer() != null)
 		{
-			teleportItem = currentHome.getTeleportItems().getClosestTeleportItemOnPlayer(client);
+			clientThread.invoke(this::updateTeleportItem);
 		}
+	}
+
+	private void updateTeleportItem()
+	{
+		teleportItem = currentHome.getTeleportItems().getClosestTeleportItemOnPlayer(client);
 	}
 
 	private void processGameObjects(final GameObject cur, final GameObject prev)
@@ -717,6 +755,23 @@ public class MahoganyHomesPlugin extends Plugin
 		if (distanceBetween(currentHome.getArea(), playerPos) - teleportItem.Distance < 10)
 		{
 			teleportItem = null;
+		}
+	}
+
+	private int getTierByText(final String tierText)
+	{
+		switch (tierText)
+		{
+			case "Beginner":
+				return 1;
+			case "Novice":
+				return 2;
+			case "Adept":
+				return 3;
+			case "Expert":
+				return 4;
+			default:
+				return -1;
 		}
 	}
 
