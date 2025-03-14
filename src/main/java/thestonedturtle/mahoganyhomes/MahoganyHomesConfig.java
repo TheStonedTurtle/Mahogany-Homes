@@ -217,6 +217,6 @@ public interface MahoganyHomesConfig extends Config
 	)
 	default boolean checkSupplies()
 	{
-		return false;
+		return true;
 	}
 }
