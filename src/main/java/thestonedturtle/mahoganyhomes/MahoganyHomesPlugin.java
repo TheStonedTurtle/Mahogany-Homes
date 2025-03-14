@@ -22,7 +22,6 @@ import net.runelite.api.Client;
 import net.runelite.api.GameObject;
 import net.runelite.api.GameState;
 import net.runelite.api.InventoryID;
-import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
 import net.runelite.api.NPC;
@@ -785,25 +784,14 @@ public class MahoganyHomesPlugin extends Plugin
 			this.numSteelBarsInInventory = 0;
 			return;
 		}
+
 		ItemContainer inventoryContainer = client.getItemContainer(InventoryID.INVENTORY.getId());
 		if (inventoryContainer == null)
 		{
 			return;
 		}
-		int num_steel_bars = 0;
-		int num_planks = 0;
-		for (Item item : inventoryContainer.getItems())
-		{
-			if (item.getId() == ItemID.STEEL_BAR)
-			{
-				num_steel_bars++;
-			}
-			else if (item.getId() == PLANK_IDS.get(contractTier - 1))
-			{
-				num_planks++;
-			}
-		}
 
+		int num_planks = inventoryContainer.count(PLANK_IDS.get(contractTier - 1));
 		Integer plank_sack_plugin_count = configManager.getRSProfileConfiguration(PLANK_SACK_GROUP_NAME, PLANK_COUNT_KEY, Integer.class);
 		if (plank_sack_plugin_count != null)
 		{
@@ -811,6 +799,6 @@ public class MahoganyHomesPlugin extends Plugin
 		}
 
 		this.numPlanksInInventory = num_planks;
-		this.numSteelBarsInInventory = num_steel_bars;
+		this.numSteelBarsInInventory = inventoryContainer.count(ItemID.STEEL_BAR);;
 	}
 }
