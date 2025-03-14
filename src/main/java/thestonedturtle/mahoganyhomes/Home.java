@@ -37,7 +37,7 @@ enum Home
 	// area is based on bounds of house not area at which stuff loads in for the homes
 	// Ardy
 	JESS(new WorldArea(2611, 3290, 14, 7, 0), "Upstairs of the building south of the church in East Ardougne",
-		NpcID.JESS, new WorldPoint(2621, 3292, 0), TeleportItems.JESS, RequiredMaterialsByTier.JESS, HotspotObjects.JESS, 17026, 16685),
+		NpcID.JESS, new WorldPoint(2621, 3292, 0), TeleportItems.JESS, RequiredMaterialsByTier.JESS, HotspotObjects.JESS, true, 17026, 16685),
 	NOELLA(new WorldArea(2652, 3317, 15, 8, 0), "North of East Ardougne market",
 		NpcID.NOELLA, new WorldPoint(2659, 3322, 0), TeleportItems.NOELLA, RequiredMaterialsByTier.NOELLA, HotspotObjects.NOELLA, 17026, 16685, 15645, 15648),
 	ROSS(new WorldArea(2609, 3313, 11, 9, 0), "North of the church in East Ardougne",
@@ -47,7 +47,7 @@ enum Home
 	LARRY(new WorldArea(3033, 3360, 10, 9, 0), "North of the fountain in Falador",
 		NpcID.LARRY_10418, new WorldPoint(3038, 3364, 0), TeleportItems.LARRY, RequiredMaterialsByTier.LARRY, HotspotObjects.LARRY, 24075, 24076),
 	NORMAN(new WorldArea(3034, 3341, 8, 8, 0), "South of the fountain in Falador",
-		NpcID.NORMAN, new WorldPoint(3038, 3344, 0), TeleportItems.NORMAN, RequiredMaterialsByTier.NORMAN, HotspotObjects.NORMAN, 24082, 24085),
+		NpcID.NORMAN, new WorldPoint(3038, 3344, 0), TeleportItems.NORMAN, RequiredMaterialsByTier.NORMAN, HotspotObjects.NORMAN, true, 24082, 24085),
 	TAU(new WorldArea(3043, 3340, 10, 11, 0), "South east of the fountain in Falador",
 		NpcID.TAU, new WorldPoint(3047, 3345, 0), TeleportItems.TAU, RequiredMaterialsByTier.TAU, HotspotObjects.TAU),
 
@@ -74,10 +74,17 @@ enum Home
 	private final Integer[] ladders;
 	private final TeleportItems teleportItems;
 	private final RequiredMaterialsByTier requiredMaterialsByTier;
+	private final boolean npcUpstairs;
 	private final HotspotObjects hotspotObjects;
 
 	Home(final WorldArea area, final String hint, final int npcId, final WorldPoint location, final TeleportItems teleportItems,
 		final RequiredMaterialsByTier requiredMaterials, final HotspotObjects hotspotObjects, final Integer... ladders)
+	{
+		this(area, hint, npcId, location, teleportItems, requiredMaterials, hotspotObjects, false, ladders);
+	}
+
+	Home(final WorldArea area, final String hint, final int npcId, final WorldPoint location, final TeleportItems teleportItems,
+		final RequiredMaterialsByTier requiredMaterials, final HotspotObjects hotspotObjects, final boolean npcUpstairs, final Integer... ladders)
 	{
 		this.area = area;
 		this.hint = hint;
@@ -87,6 +94,7 @@ enum Home
 		this.teleportItems = teleportItems;
 		this.hotspotObjects = hotspotObjects;
 		this.requiredMaterialsByTier = requiredMaterials;
+		this.npcUpstairs = npcUpstairs;
 	}
 
 	String getName()

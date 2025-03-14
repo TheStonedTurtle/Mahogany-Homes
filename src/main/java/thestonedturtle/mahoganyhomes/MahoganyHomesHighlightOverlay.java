@@ -63,9 +63,17 @@ class MahoganyHomesHighlightOverlay extends Overlay
 			return null;
 		}
 
+		// Player is not at the home yet, do not render anything
+		if (plugin.distanceBetween(home.getArea(), plugin.getClient().getLocalPlayer().getWorldLocation()) > 0)
+		{
+			return null;
+		}
+
+		final int playerPlane = plugin.getClient().getTopLevelWorldView().getPlane();
+		int countOnFloor = 0;
 		for (TileObject gameObject : plugin.getObjectsToMark())
 		{
-			if (gameObject.getPlane() != plugin.getClient().getPlane())
+			if (gameObject.getPlane() != playerPlane)
 			{
 				continue;
 			}
@@ -76,30 +84,60 @@ class MahoganyHomesHighlightOverlay extends Overlay
 				continue;
 			}
 
-			Color fillColor = config.highlightHotspotColor();
 			final Hotspot spot = Hotspot.getByObjectId(gameObject.getId());
 			if (spot == null)
 			{
-				// Ladders aren't hotspots so handle them after this check
-				if (!Home.isLadder(gameObject.getId()) || !config.highlightStairs())
-				{
-					continue;
-				}
-
-				fillColor = config.highlightStairsColor();
+				continue;
 			}
-			else
+
+			// Do not highlight if it doesn't require attention
+			if (!plugin.doesHotspotRequireAttention(spot.getVarb()))
 			{
-				// Do not highlight the hotspot if the config is disabled or it doesn't require any attention
-				if (!config.highlightHotspots() || !plugin.doesHotspotRequireAttention(spot.getVarb()))
-				{
-					continue;
-				}
+				continue;
+			}
+
+			countOnFloor++;
+			// Do not highlight the hotspot if the config is disabled. Because of countOnFloor we still need this loop.
+			if (!config.highlightHotspots())
+			{
+				continue;
 			}
 
 			final net.runelite.api.Point mousePosition = plugin.getClient().getMouseCanvasPosition();
 			OverlayUtil.renderHoverableArea(graphics, gameObject.getClickbox(), mousePosition,
-				fillColor, CLICKBOX_BORDER_COLOR, CLICKBOX_HOVER_BORDER_COLOR);
+				config.highlightHotspotColor(), CLICKBOX_BORDER_COLOR, CLICKBOX_HOVER_BORDER_COLOR);
+		}
+
+		if (config.highlightStairs())
+		{
+			for (TileObject gameObject : plugin.getLaddersToMark())
+			{
+				// Object is on a different floor somehow?
+				if (gameObject.getPlane() != playerPlane)
+				{
+					continue;
+				}
+
+				// Object not inside area for this house.
+				if (plugin.distanceBetween(home.getArea(), gameObject.getWorldLocation()) > 0)
+				{
+					continue;
+				}
+
+				final boolean onSameFloorAsNpc = home.isNpcUpstairs() ? playerPlane > 0 : playerPlane == 0;
+				final int remainingTasks = plugin.getCompletedCount();
+
+				// If all remaining tasks are on this floor there's no need to highlight stairs
+				// However if we're not on the same floor we need to highlight the stairs when there's no tasks left
+				if (countOnFloor == remainingTasks && (onSameFloorAsNpc || countOnFloor > 0))
+				{
+					continue;
+				}
+
+				final net.runelite.api.Point mousePosition = plugin.getClient().getMouseCanvasPosition();
+				OverlayUtil.renderHoverableArea(graphics, gameObject.getClickbox(), mousePosition,
+					config.highlightStairsColor(), CLICKBOX_BORDER_COLOR, CLICKBOX_HOVER_BORDER_COLOR);
+			}
 		}
 
 		return null;

@@ -105,6 +105,8 @@ public class MahoganyHomesPlugin extends Plugin
 
 	@Getter
 	private final List<GameObject> objectsToMark = new ArrayList<>();
+	@Getter
+	private final List<GameObject> laddersToMark = new ArrayList<>();
 	// Varb values: 0=default, 1=Needs repair, 2=Repaired, 3=Remove 4=Bulld 5-8=Built Tiers
 	private final HashMap<Integer, Integer> varbMap = new HashMap<>();
 
@@ -163,6 +165,7 @@ public class MahoganyHomesPlugin extends Plugin
 		client.clearHintArrow();
 		varbMap.clear();
 		objectsToMark.clear();
+		laddersToMark.clear();
 		currentHome = null;
 		mapIcon = null;
 		mapArrow = null;
@@ -226,6 +229,7 @@ public class MahoganyHomesPlugin extends Plugin
 		if (e.getGameState() == GameState.LOADING)
 		{
 			objectsToMark.clear();
+			laddersToMark.clear();
 		}
 	}
 
@@ -515,14 +519,23 @@ public class MahoganyHomesPlugin extends Plugin
 	private void processGameObjects(final GameObject cur, final GameObject prev)
 	{
 		objectsToMark.remove(prev);
+		laddersToMark.remove(prev);
 
 		if (cur == null || (!Hotspot.isHotspotObject(cur.getId()) && !Home.isLadder(cur.getId())))
 		{
 			return;
 		}
 
-		// Filter objects inside highlight overlay
-		objectsToMark.add(cur);
+		if (Hotspot.isHotspotObject(cur.getId()))
+		{
+			objectsToMark.add(cur);
+			return;
+		}
+
+		if (Home.isLadder(cur.getId()))
+		{
+			laddersToMark.add(cur);
+		}
 	}
 
 	private void updateVarbMap()
@@ -626,22 +639,19 @@ public class MahoganyHomesPlugin extends Plugin
 			// Couldn't find the NPC, find the closest ladder to player
 			WorldPoint location = null;
 			int distance = Integer.MAX_VALUE;
-			for (final GameObject obj : objectsToMark)
+			for (final GameObject obj : laddersToMark)
 			{
-				if (Home.isLadder(obj.getId()))
+				// Ensure ladder isn't in a nearby home.
+				if (distanceBetween(currentHome.getArea(), obj.getWorldLocation()) > 0)
 				{
-					// Ensure ladder isn't in a nearby home.
-					if (distanceBetween(currentHome.getArea(), obj.getWorldLocation()) > 0)
-					{
-						continue;
-					}
+					continue;
+				}
 
-					int diff = obj.getWorldLocation().distanceTo(client.getLocalPlayer().getWorldLocation());
-					if (diff < distance)
-					{
-						distance = diff;
-						location = obj.getWorldLocation();
-					}
+				int diff = obj.getWorldLocation().distanceTo(client.getLocalPlayer().getWorldLocation());
+				if (diff < distance)
+				{
+					distance = diff;
+					location = obj.getWorldLocation();
 				}
 			}
 
