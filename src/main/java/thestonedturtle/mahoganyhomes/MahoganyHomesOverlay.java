@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import static net.runelite.api.MenuAction.RUNELITE_OVERLAY;
 import static net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG;
 import net.runelite.api.Player;
+import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
 import net.runelite.client.ui.overlay.OverlayMenuEntry;
@@ -44,6 +45,9 @@ class MahoganyHomesOverlay extends OverlayPanel
 	static final String RESET_SESSION_OPTION = "Reset";
 	static final String CLEAR_OPTION = "Clear";
 	static final String TIMEOUT_OPTION = "Timeout";
+
+	private static final String UNICODE_CHECK_MARK = "\u2713";
+	private static final String UNICODE_BALLOT_X = "\u2717";
 
 	private final MahoganyHomesPlugin plugin;
 	private final MahoganyHomesConfig config;
@@ -92,7 +96,7 @@ class MahoganyHomesOverlay extends OverlayPanel
 		{
 			if (have >= max)
 			{
-				line = line.right("✓").rightColor(Color.GREEN);
+				line = line.right(UNICODE_CHECK_MARK).rightColor(Color.GREEN);
 			}
 			else if (have >= min)
 			{
@@ -102,8 +106,10 @@ class MahoganyHomesOverlay extends OverlayPanel
 			}
 			else
 			{
-				line = line.right("x").rightColor(Color.RED);
+				line = line.right(UNICODE_BALLOT_X).rightColor(Color.RED);
 			}
+			// Ensure font used to render symbols properly across platforms.
+			line = line.rightFont(FontManager.getDefaultFont());
 		}
 		panelComponent.getChildren().add(line.build());
 	}
