@@ -5,12 +5,7 @@ import com.google.inject.Provides;
 import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -39,9 +34,11 @@ import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.OverlayMenuClicked;
+import net.runelite.client.events.PluginMessage;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -96,6 +93,9 @@ public class MahoganyHomesPlugin extends Plugin
 
 	@Inject
 	private WorldMapPointManager worldMapPointManager;
+
+	@Inject
+	private EventBus eventBus;
 
 	@Provides
 	MahoganyHomesConfig provideConfig(ConfigManager configManager)
@@ -213,6 +213,14 @@ public class MahoganyHomesPlugin extends Plugin
 		else if (c.getKey().equals(MahoganyHomesConfig.SESSION_TIMEOUT_KEY))
 		{
 			pluginTimeoutDuration = Duration.ofMinutes(config.sessionTimeout());
+		}
+		else if (c.getKey().equals(MahoganyHomesConfig.SHORTEST_PATH_KEY))
+		{
+
+			if (config.useShortestPath() && currentHome != null && client.getLocalPlayer() != null)
+			{
+				setShortestPath(client.getLocalPlayer().getWorldLocation(), currentHome.getLocation());
+			}
 		}
 	}
 
@@ -498,6 +506,12 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			worldMapPointManager.removeIf(MahoganyHomesWorldPoint.class::isInstance);
 			worldMapPointManager.add(new MahoganyHomesWorldPoint(h.getLocation(), this));
+		}
+
+		if (config.useShortestPath() && client.getLocalPlayer() != null)
+		{
+			WorldPoint playerWp = client.getLocalPlayer().getWorldLocation();
+			setShortestPath(playerWp, h.getLocation());
 		}
 
 		if (config.displayHintArrows() && client.getLocalPlayer() != null)
@@ -810,5 +824,16 @@ public class MahoganyHomesPlugin extends Plugin
 
 		this.numPlanksInInventory = num_planks;
 		this.numSteelBarsInInventory = inventoryContainer.count(ItemID.STEEL_BAR);;
+	}
+
+	void setShortestPath(final WorldPoint start, final WorldPoint target)
+	{
+		if (config.useShortestPath() && start != null && target != null)
+		{
+			Map<String, Object> data = new HashMap<>();
+			data.put("start", start);
+			data.put("target", target);
+			eventBus.post(new PluginMessage("shortestpath", "path", data));
+		}
 	}
 }

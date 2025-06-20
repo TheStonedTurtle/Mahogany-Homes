@@ -41,6 +41,7 @@ public interface MahoganyHomesConfig extends Config
 	String WORLD_MAP_KEY = "worldMapIcon";
 	String HINT_ARROW_KEY = "displayHintArrows";
 	String SESSION_TIMEOUT_KEY = "sessionTimeout";
+	String SHORTEST_PATH_KEY = "shortestPath";
 
 	@ConfigItem(
 		keyName = WORLD_MAP_KEY,
@@ -73,6 +74,18 @@ public interface MahoganyHomesConfig extends Config
 	default boolean showRequiredMaterials()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+			keyName = "shortestPath",
+			name = "Use 'Shortest Path' plugin",
+			description = "Draws the shortest path to the assigned house on the map.<br/>" +
+					"The plugin 'Shortest Path' needs to be enabled for this to work",
+			position = 3
+	)
+	default boolean useShortestPath()
+	{
+		return false;
 	}
 
 	@ConfigSection(
