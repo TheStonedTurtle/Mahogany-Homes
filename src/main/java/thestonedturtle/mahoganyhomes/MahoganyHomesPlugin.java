@@ -36,6 +36,7 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.UsernameChanged;
 import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
@@ -67,10 +68,6 @@ public class MahoganyHomesPlugin extends Plugin
 	private static final Pattern REQUEST_CONTACT_TIER = Pattern.compile("Could I have an? (\\w*) contract please\\?");
 
 	private static final List<Integer> PLANK_IDS = Arrays.asList(ItemID.PLANK, ItemID.OAK_PLANK, ItemID.TEAK_PLANK, ItemID.MAHOGANY_PLANK);
-
-	private static final String PLANK_SACK_GROUP_NAME = "planksack";
-
-	private static final String PLANK_COUNT_KEY = "plankcount";
 
 	@Getter
 	@Inject
@@ -122,6 +119,7 @@ public class MahoganyHomesPlugin extends Plugin
 	@Getter
 	private Home currentHome;
 	private boolean varbChange;
+    private boolean plankSackVarbChange;
 	private boolean wasTimedOut;
 	@Getter
 	private int contractTier = 0;
@@ -187,14 +185,6 @@ public class MahoganyHomesPlugin extends Plugin
 	@Subscribe
 	public void onConfigChanged(ConfigChanged c)
 	{
-		if (c.getGroup().equals(PLANK_SACK_GROUP_NAME) && c.getKey().equals(PLANK_COUNT_KEY))
-		{
-			if (contractTier > 0 && !isPluginTimedOut())
-			{
-				updateResourcesInInventory();
-			}
-			return;
-		}
 		if (!c.getGroup().equals(MahoganyHomesConfig.GROUP_NAME))
 		{
 			return;
@@ -235,6 +225,15 @@ public class MahoganyHomesPlugin extends Plugin
 	{
 		// Defer to game tick for better performance
 		varbChange = true;
+        switch (event.getVarbitId())
+        {   // Limit unnecessary resource recalculations
+            // if the varbit isn't a plank sack value
+            case VarbitID.PLANK_SACK_PLAIN:
+            case VarbitID.PLANK_SACK_OAK:
+            case VarbitID.PLANK_SACK_TEAK:
+            case VarbitID.PLANK_SACK_MAHOGANY:
+                plankSackVarbChange = true;
+        }
 	}
 
 	@Subscribe
@@ -566,6 +565,11 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			varbMap.put(spot.getVarb(), client.getVarbitValue(spot.getVarb()));
 		}
+        if (plankSackVarbChange)
+        {
+            updateResourcesInInventory();
+            plankSackVarbChange = false;
+        }
 	}
 
 	private void loadFromConfig()
@@ -820,17 +824,31 @@ public class MahoganyHomesPlugin extends Plugin
 		{
 			return;
 		}
-
-		int num_planks = inventoryContainer.count(PLANK_IDS.get(contractTier - 1));
-		Integer plank_sack_plugin_count = configManager.getRSProfileConfiguration(PLANK_SACK_GROUP_NAME, PLANK_COUNT_KEY, Integer.class);
-		if (plank_sack_plugin_count != null)
-		{
-			num_planks += plank_sack_plugin_count;
-		}
-
+        int plankId = PLANK_IDS.get(contractTier - 1);
+		int num_planks = inventoryContainer.count(plankId);
+        if (inventoryContainer.contains(ItemID.PLANK_SACK))
+        {
+            num_planks += countPlankSackVarb(plankId);
+        }
 		this.numPlanksInInventory = num_planks;
 		this.numSteelBarsInInventory = inventoryContainer.count(ItemID.STEEL_BAR);;
 	}
+
+    int countPlankSackVarb(int plankID)
+    {
+        switch (plankID)
+        {
+            case ItemID.PLANK:
+                return client.getVarbitValue(VarbitID.PLANK_SACK_PLAIN);
+            case ItemID.OAK_PLANK:
+                return client.getVarbitValue(VarbitID.PLANK_SACK_OAK);
+            case ItemID.TEAK_PLANK:
+                return client.getVarbitValue(VarbitID.PLANK_SACK_TEAK);
+            case ItemID.MAHOGANY_PLANK:
+                return client.getVarbitValue(VarbitID.PLANK_SACK_MAHOGANY);
+        }
+        return 0;
+    }
 
 	void setShortestPath(final WorldPoint start, final WorldPoint target)
 	{

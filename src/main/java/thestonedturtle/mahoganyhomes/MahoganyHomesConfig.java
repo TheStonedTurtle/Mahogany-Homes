@@ -225,7 +225,7 @@ public interface MahoganyHomesConfig extends Config
 		keyName = "checkSupplies",
 		name = "Check Supplies",
 		description = "Checks if you have enough supplies in your inventory to complete your current contract.<br/>" +
-			"If the Plank Sack plugin is installed, it will include all planks within the plank sack regardless of plank type",
+            "If the plank sack is in your inventory, this will include planks of the correct type that are stored within it.",
 		position = 10
 	)
 	default boolean checkSupplies()
